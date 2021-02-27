@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#9e9e9e"
-        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintDimensionRatio="20:21"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"

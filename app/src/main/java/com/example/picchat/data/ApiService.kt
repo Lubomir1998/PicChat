@@ -4,6 +4,7 @@ import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.data.requests.AccountRequest
 import com.example.picchat.data.requests.Auth
+import com.example.picchat.data.requests.ToggleLikeRequest
 import com.example.picchat.data.responses.SimpleResponse
 import kotlinx.coroutines.flow.Flow
 import okhttp3.ResponseBody
@@ -32,5 +33,9 @@ interface ApiService {
 
     @POST("/createPost")
     suspend fun createPost(@Body post: Post): Response<SimpleResponse>
+
+    @POST("/toggleLike")
+    suspend fun toggleLike(@Body toggleLikeRequest: ToggleLikeRequest): Response<ResponseBody>
+
 
 }

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.example.picchat.data.ApiService
 import com.example.picchat.data.entities.Post
+import com.example.picchat.data.requests.ToggleLikeRequest
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -71,6 +72,30 @@ class MainRepository
                 Resource.Error(response.body()?.message ?: response.message(), null)
             }
 
+        }
+    }
+
+    suspend fun toggleLike(postId: String, uid: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.toggleLike(ToggleLikeRequest(postId, uid))
+            if(response.isSuccessful) {
+                Resource.Success(Any())
+            }
+            else {
+                Resource.Error("Something went wrong")
+            }
+        }
+    }
+
+    suspend fun getUser(uid: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val user = api.getUserById(uid) ?: throw Exception()
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: throw Exception()
+            val currentUser = api.getUserById(currentUid) ?: throw Exception()
+
+            user.isFollowing = uid in currentUser.following
+
+            Resource.Success(user)
         }
     }
 

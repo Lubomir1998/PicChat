@@ -9,6 +9,7 @@ data class Post(
     val description: String,
     val date: Long,
     var likes: List<String> = listOf(),
+    var comments: Int = 0,
     @Expose(serialize = false, deserialize = false)
     var authorUsername: String = "",
     @Expose(serialize = false, deserialize = false)

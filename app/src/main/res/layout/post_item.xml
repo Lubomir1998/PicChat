@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/postAuthorImgUrl"
+        android:id="@+id/postAuthorImg"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:layout_marginStart="16dp"
@@ -24,7 +24,7 @@
         app:layout_constraintDimensionRatio="20:21"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postAuthorImgUrl"
+        app:layout_constraintTop_toBottomOf="@+id/postAuthorImg"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -37,8 +37,8 @@
         android:textSize="18sp"
         android:textColor="@color/black"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/postAuthorImgUrl"
-        app:layout_constraintTop_toTopOf="@+id/postAuthorImgUrl" />
+        app:layout_constraintStart_toEndOf="@+id/postAuthorImg"
+        app:layout_constraintTop_toTopOf="@+id/postAuthorImg" />
 
     <ImageView
         android:id="@+id/btnLikePost"

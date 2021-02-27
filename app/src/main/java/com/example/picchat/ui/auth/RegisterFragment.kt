@@ -47,10 +47,10 @@ class RegisterFragment: Fragment(R.layout.register_fragment) {
         }
 
         binding.btnRegister.setOnClickListener {
-            val email = binding.etEmail.text.toString()
-            val username = binding.etUsername.text.toString()
-            val password = binding.etPassword.text.toString()
-            val confirmPassword = binding.etRepeatPassword.text.toString()
+            val email = binding.etEmail.text.toString().trim()
+            val username = binding.etUsername.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            val confirmPassword = binding.etRepeatPassword.text.toString().trim()
 
             viewModel.register(username, email, password, confirmPassword)
         }

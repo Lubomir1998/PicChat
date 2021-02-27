@@ -11,6 +11,7 @@ data class User(
     val profileImgUrl: String = DEFAULT_PROFILE_IMG_URL,
     var following: List<String> = listOf(),
     var followers: List<String> = listOf(),
+    var posts: Int = 0,
     @Expose(serialize = false, deserialize = false)
     var isFollowing: Boolean = false,
     val uid: String = UUID.randomUUID().toString()

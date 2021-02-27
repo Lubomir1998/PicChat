@@ -64,8 +64,8 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
         }
 
         binding.btnLogin.setOnClickListener {
-            val email = binding.etLoginEmail.text.toString()
-            val password = binding.etPassword.text.toString()
+            val email = binding.etLoginEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
 
             currentEmail = email
             currentPassword = password

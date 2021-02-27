@@ -5,16 +5,29 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.picchat.data.entities.Post
+import com.example.picchat.other.Event
 import com.example.picchat.other.Resource
 import com.example.picchat.repositories.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel
-@Inject constructor(private val repository: MainRepository): ViewModel() {
+@Inject constructor(private val repository: MainRepository): BasePostViewModel(repository) {
 
+    private val _posts = MutableStateFlow<Event<Resource<List<Post>>>>(Event(Resource.Empty()))
 
+    override val posts: StateFlow<Event<Resource<List<Post>>>>
+        get() = _posts
 
+    override fun getPosts(uid: String) {
+        _posts.value = Event((Resource.Loading()))
+        viewModelScope.launch {
+            val result = repository.getPostsOfFollowing()
+            _posts.value = Event(result)
+        }
+    }
 }
