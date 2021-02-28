@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager.findFragmentById(R.id.main_nav_host_fragment)!!.findNavController().addOnDestinationChangedListener { _, destination, _ ->
             when(destination.id){
-                 R.id.createPostFragment, R.id.notificationsFragment ->
+                 R.id.createPostFragment, R.id.notificationsFragment, R.id.commentsFragment ->
                     binding.bottomNav.visibility = View.GONE
                 else ->
                     binding.bottomNav.visibility = View.VISIBLE

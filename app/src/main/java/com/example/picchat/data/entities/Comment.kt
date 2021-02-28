@@ -8,8 +8,8 @@ data class Comment(
         val postId: String,
         val text: String,
         @Expose(serialize = false, deserialize = false)
-        val profileImfUrl: String = "",
+        var profileImfUrl: String = "",
         @Expose(serialize = false, deserialize = false)
-        val username: String = "",
+        var username: String = "",
         val id: String = UUID.randomUUID().toString()
 )

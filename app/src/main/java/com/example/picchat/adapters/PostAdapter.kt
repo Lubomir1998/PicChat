@@ -102,6 +102,12 @@ class PostAdapter
                 }
             }
 
+            btnComment.setOnClickListener {
+                onCommentTvClickListener?.let {
+                    it(post)
+                }
+            }
+
         }
 
     }

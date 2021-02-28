@@ -1,5 +1,6 @@
 package com.example.picchat.data
 
+import com.example.picchat.data.entities.Comment
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.data.requests.AccountRequest
@@ -38,6 +39,9 @@ interface ApiService {
     @POST("/createPost")
     suspend fun createPost(@Body post: Post): Response<SimpleResponse>
 
+    @POST("/addComment")
+    suspend fun addComment(@Body comment: Comment): Response<SimpleResponse>
+
     @POST("/toggleLike")
     suspend fun toggleLike(@Body toggleLikeRequest: ToggleLikeRequest): Response<ResponseBody>
 
@@ -46,6 +50,9 @@ interface ApiService {
 
     @POST("/updateUser")
     suspend fun updateProfile(@Body updateUserRequest: UpdateUserRequest): Response<SimpleResponse>
+
+    @GET("/getComments/{id}")
+    suspend fun getComments(@Path("id") postId: String): Response<List<Comment>>
 
 
 }

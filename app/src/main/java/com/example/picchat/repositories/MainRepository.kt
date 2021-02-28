@@ -3,6 +3,7 @@ package com.example.picchat.repositories
 import android.content.SharedPreferences
 import android.net.Uri
 import com.example.picchat.data.ApiService
+import com.example.picchat.data.entities.Comment
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.requests.ToggleLikeRequest
 import com.example.picchat.data.requests.UpdateUserRequest
@@ -158,6 +159,47 @@ class MainRepository
             user.isFollowing = uid in currentUser.following
 
             Resource.Success(user)
+        }
+    }
+
+    suspend fun addComment(text: String, postId: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val authorUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+            val comment = Comment(
+                    authorUid,
+                    postId,
+                    text
+            )
+
+            val response = api.addComment(comment)
+
+            if(response.isSuccessful && response.body()!!.isSuccessful) {
+                Resource.Success(response.body()?.message)
+            }
+            else {
+                Resource.Error("Something went wrong")
+            }
+        }
+    }
+
+    suspend fun getComments(postId: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val comments = api.getComments(postId).body()
+
+            comments?.let {
+                it.forEach { comment ->
+                    val author = api.getUserById(comment.authorUid) ?: throw Exception()
+
+                    comment.apply {
+                        profileImfUrl = author.profileImgUrl
+                        username = author.username
+                    }
+
+                }
+                Resource.Success(it)
+            } ?: Resource.Error("Something went wrong")
+
         }
     }
 
