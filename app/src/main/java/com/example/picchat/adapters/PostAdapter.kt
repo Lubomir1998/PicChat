@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.example.picchat.R
-import com.example.picchat.data.entities.Comment
 import com.example.picchat.data.entities.Post
 import com.example.picchat.databinding.PostItemBinding
 import java.text.SimpleDateFormat
@@ -16,7 +15,7 @@ import java.util.*
 import javax.inject.Inject
 
 class PostAdapter
-@Inject constructor(private val glide: RequestManager): ListAdapter<Post, PostAdapter.PostViewHolder>(DiffCallBack()) {
+@Inject constructor(private val glide: RequestManager): ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallBack()) {
 
     class PostViewHolder(itemView: PostItemBinding) : RecyclerView.ViewHolder(itemView.root) {
         val postAuthorImg = itemView.postAuthorImg
@@ -133,7 +132,7 @@ class PostAdapter
 
 
 
-    class DiffCallBack: DiffUtil.ItemCallback<Post>() {
+    class PostDiffCallBack: DiffUtil.ItemCallback<Post>() {
         override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
             return oldItem.id == newItem.id
         }

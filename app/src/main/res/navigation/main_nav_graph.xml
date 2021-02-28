@@ -14,5 +14,39 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.picchat.ui.main.ProfileFragment"
-        android:label="ProfileFragment" />
+        android:label="ProfileFragment" >
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.picchat.ui.main.SearchFragment"
+        android:label="SearchFragment" >
+        <action
+            android:id="@+id/action_searchFragment_to_othersProfileFragment"
+            app:destination="@id/othersProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/othersProfileFragment"
+        android:name="com.example.picchat.ui.main.OthersProfileFragment"
+        android:label="OthersProfileFragment" >
+        <argument
+            android:name="uid"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.picchat.ui.main.EditProfileFragment"
+        android:label="EditProfileFragment" >
+        <argument
+            android:name="profileImgUrl"
+            app:argType="string" />
+        <argument
+            android:name="username"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -2,6 +2,7 @@ package com.example.picchat.ui.main
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.RequestManager
 import com.example.picchat.R
+import com.example.picchat.adapters.ProfilePostsAdapter
+import com.example.picchat.data.entities.User
 import com.example.picchat.databinding.ProfileFragmentBinding
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
@@ -25,34 +30,62 @@ import javax.inject.Inject
 @AndroidEntryPoint
 open class ProfileFragment: Fragment(R.layout.profile_fragment) {
 
-    private lateinit var binding: ProfileFragmentBinding
-    private val viewModel: ProfileViewModel by viewModels()
+    lateinit var profileBinding: ProfileFragmentBinding
+
+    protected open var currentUser: User? = null
+
+    protected open val viewModel: ProfileViewModel
+        get() {
+            val vm: ProfileViewModel by viewModels()
+            return vm
+        }
 
     @Inject
     lateinit var sharedPrefs: SharedPreferences
 
     @Inject
+    lateinit var profilePostAdapter: ProfilePostsAdapter
+
+    @Inject
     lateinit var glide: RequestManager
 
+    protected open val uid: String
+        get() = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = ProfileFragmentBinding.inflate(inflater, container, false)
-        return binding.root
+        profileBinding = ProfileFragmentBinding.inflate(inflater, container, false)
+        return profileBinding.root
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ResourceAsColor")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnEditProfile.visibility = View.VISIBLE
-        binding.btnFollow.visibility = View.GONE
+        profileBinding.btnFollow.apply {
+            text = "Edit profile"
+            setTextColor(Color.BLACK)
+            setBackgroundColor(Color.WHITE)
+        }
 
-        val uid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
 
-        binding.swipeRefreshProfile.setOnRefreshListener {
+        setupRecyclerView()
+
+        profileBinding.btnFollow.setOnClickListener {
+            findNavController().navigate(
+                    ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment(
+                            currentUser?.profileImgUrl ?: "",
+                            currentUser?.username ?: "",
+                            currentUser?.description ?: ""
+                    )
+            )
+        }
+
+
+        profileBinding.swipeRefreshProfile.setOnRefreshListener {
             if(uid != NO_UID) {
                 viewModel.loadProfile(uid)
             }
-            binding.swipeRefreshProfile.isRefreshing = false
+            profileBinding.swipeRefreshProfile.isRefreshing = false
         }
 
 
@@ -61,34 +94,74 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
             viewModel.loadProfile(uid)
         }
 
+        collectUserData()
+
+
+    }
+
+
+    @SuppressLint("SetTextI18n")
+    fun collectUserData() {
         lifecycleScope.launchWhenStarted {
             viewModel.userFlow.collect {
                 when(val result = it.peekContent()) {
 
                     is Resource.Success -> {
-                        binding.profileProgressBar.isVisible = false
-                        val user = result.data!!
+                        profileBinding.btnFollow.isVisible = true
+                        profileBinding.profileProgressBar.isVisible = false
+                        currentUser = result.data
 
-                        glide.load(user.profileImgUrl).into(binding.circleImageView)
 
-                        if(user.description.trim().isEmpty()) {
-                            binding.profileBioTv.visibility = View.GONE
+                        viewModel.getPosts(uid)
+
+                        glide.load(currentUser!!.profileImgUrl).into(profileBinding.circleImageView)
+
+                        if(currentUser!!.description.trim().isEmpty()) {
+                            profileBinding.profileBioTv.visibility = View.GONE
                         }
                         else {
-                            binding.profileBioTv.visibility = View.VISIBLE
-                            binding.profileBioTv.text = user.description.trim()
+                            profileBinding.profileBioTv.visibility = View.VISIBLE
+                            profileBinding.profileBioTv.text = currentUser!!.description.trim()
                         }
 
-                        binding.profileUsernameTv.text = user.username
-                        binding.postsTv.text = "${user.posts}\nposts"
-                        binding.followersTv.text = "${user.followers.size}\nfollowers"
-                        binding.followingTv.text = "${user.followers.size}\nfollowing"
+                        profileBinding.profileUsernameTv.text = currentUser!!.username
+                        profileBinding.postsTv.text = "${currentUser!!.posts}\nposts"
+                        profileBinding.followersTv.text = "${currentUser!!.followers.size}\nfollowers"
+                        profileBinding.followingTv.text = "${currentUser!!.followers.size}\nfollowing"
 
+                        viewModel.posts.collect {
+                            when(it.peekContent()) {
+                                is Resource.Success -> {
+                                    profileBinding.btnFollow.isVisible = true
+                                    profileBinding.profilePostsProgressBar.isVisible = false
+                                    val posts = it.peekContent().data!!.reversed()
+                                    profilePostAdapter.submitList(posts)
+                                }
+
+                                is Resource.Error -> {
+                                    profileBinding.btnFollow.isVisible = true
+                                    profileBinding.profilePostsProgressBar.isVisible = false
+                                    it.getContentIfNotHandled()?.let { error ->
+                                        error.message?.let { message ->
+                                            snackbar(message)
+                                        }
+
+                                    }
+                                }
+
+                                is Resource.Loading -> {
+                                    profileBinding.profilePostsProgressBar.isVisible = true
+                                    profileBinding.btnFollow.isVisible = false
+                                }
+
+                                is Resource.Empty -> Unit
+                            }
+                        }
 
                     }
 
                     is Resource.Error -> {
-                        binding.profileProgressBar.isVisible = false
+                        profileBinding.profileProgressBar.isVisible = false
                         it.getContentIfNotHandled()?.let { error ->
                             error.message?.let { message ->
                                 snackbar(message)
@@ -97,14 +170,22 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
                         }
                     }
 
-                    is Resource.Loading -> { binding.profileProgressBar.isVisible = true }
+                    is Resource.Loading -> { profileBinding.profileProgressBar.isVisible = true }
 
                     is Resource.Empty -> Unit
                 }
             }
+
         }
+    }
 
 
+    private fun setupRecyclerView() {
+        profileBinding.recyclerViewProfilePosts.apply {
+            adapter = profilePostAdapter
+            layoutManager = GridLayoutManager(requireContext(), 3)
+            animation = null
+        }
     }
 
 }

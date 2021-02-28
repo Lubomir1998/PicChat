@@ -5,6 +5,7 @@ import com.example.picchat.data.entities.User
 import com.example.picchat.data.requests.AccountRequest
 import com.example.picchat.data.requests.Auth
 import com.example.picchat.data.requests.ToggleLikeRequest
+import com.example.picchat.data.requests.UpdateUserRequest
 import com.example.picchat.data.responses.SimpleResponse
 import kotlinx.coroutines.flow.Flow
 import okhttp3.ResponseBody
@@ -31,11 +32,20 @@ interface ApiService {
     @GET("getUser/{id}")
     suspend fun getUserById(@Path("id") id: String): User?
 
+    @GET("getPostsForUser/{uid}")
+    suspend fun getPostsForProfile(@Path("uid") id: String): Response<List<Post>>
+
     @POST("/createPost")
     suspend fun createPost(@Body post: Post): Response<SimpleResponse>
 
     @POST("/toggleLike")
     suspend fun toggleLike(@Body toggleLikeRequest: ToggleLikeRequest): Response<ResponseBody>
+
+    @GET("/searchUsers/{query}")
+    suspend fun searchUsers(@Path("query") query: String): Response<List<User>>
+
+    @POST("/updateUser")
+    suspend fun updateProfile(@Body updateUserRequest: UpdateUserRequest): Response<SimpleResponse>
 
 
 }
