@@ -8,8 +8,7 @@ import com.example.picchat.other.Event
 import com.example.picchat.other.Resource
 import com.example.picchat.repositories.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,9 +22,15 @@ class CommentsViewModel
 
     fun getComments(postId: String) {
         _comments.value = Event(Resource.Loading())
+
+        val commentsFlow = flow {
+            emit(repository.getComments(postId))
+        }
+
         viewModelScope.launch {
-            val result = repository.getComments(postId)
-            _comments.value = Event(result)
+            commentsFlow.collect {
+                _comments.value = Event(it)
+            }
         }
     }
 
@@ -35,7 +40,7 @@ class CommentsViewModel
     val addCommentState: StateFlow<Event<Resource<String?>>> = _addCommentState
 
     fun comment(text: String, postId: String) {
-        if(text.isEmpty()) {
+        if(text.trim().isEmpty()) {
             _addCommentState.value = Event(Resource.Error("Field is empty"))
             return
         }

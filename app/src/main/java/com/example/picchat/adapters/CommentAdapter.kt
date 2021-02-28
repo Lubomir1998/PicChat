@@ -33,8 +33,31 @@ class CommentAdapter
             glide.load(comment.profileImfUrl).into(profileImg)
             authorUsername.text = comment.username
             commentText.text = comment.text
+
+            authorUsername.setOnClickListener {
+                onUsernameClickListener?.let {
+                    it(comment.authorUid)
+                }
+            }
+
+            profileImg.setOnClickListener {
+                onUsernameClickListener?.let {
+                    it(comment.authorUid)
+                }
+            }
         }
     }
+
+
+
+    private var onUsernameClickListener: ((String) -> Unit)? = null
+
+    fun setOnUsernameClickListener(listener: (String) -> Unit) {
+        onUsernameClickListener = listener
+    }
+
+
+
 
     class CommentDiffCallback: DiffUtil.ItemCallback<Comment>() {
         override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean {

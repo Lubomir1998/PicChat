@@ -65,5 +65,11 @@
         <argument
             android:name="postId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_commentsFragment_to_othersProfileFragment"
+            app:destination="@id/othersProfileFragment" />
+        <action
+            android:id="@+id/action_commentsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 </navigation>
