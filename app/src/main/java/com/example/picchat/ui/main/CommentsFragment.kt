@@ -91,7 +91,7 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
                     is Resource.Success -> {
                         binding.commentsProgressBar.isVisible = false
 
-                        val comments = result.data!!.reversed()
+                        val comments = result.data!!
 
                         commentsAdapter.submitList(comments)
                     }
@@ -118,9 +118,10 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
             viewModel.addCommentState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        binding.btnPostComment.isEnabled = true
+                        binding.btnPostComment.isEnabled = false
                         binding.commentsProgressBar.isVisible = false
                         viewModel.getComments(postId)
+                        binding.etComment.text.clear()
                     }
 
                     is Resource.Error -> {

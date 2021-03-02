@@ -9,6 +9,8 @@ import com.example.picchat.repositories.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +29,30 @@ class SearchViewModel
         viewModelScope.launch {
             val result = repository.searchUsers(query)
             _users.value = Event(result)
+        }
+    }
+
+
+    private val _toggleFollowState = MutableStateFlow<Event<Resource<User>>>(Event(Resource.Empty()))
+    val toggleFollowState: StateFlow<Event<Resource<User>>> = _toggleFollowState
+
+//    val positionFlow = MutableStateFlow(0)
+
+    fun toggleFollow(uid: String) {
+        val flow = flow {
+            emit(repository.toggleFollow(uid))
+        }
+//        val flowPosition = flow {
+//            emit(position)
+//        }
+
+        viewModelScope.launch {
+//            flowPosition.collect {
+//                positionFlow.value = it
+//            }
+            flow.collect {
+                _toggleFollowState.value = Event(it)
+            }
         }
     }
 

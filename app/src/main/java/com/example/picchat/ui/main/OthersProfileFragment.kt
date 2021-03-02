@@ -12,6 +12,7 @@ import com.example.picchat.data.entities.User
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
+import com.example.picchat.other.snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
@@ -31,6 +32,7 @@ class OthersProfileFragment: ProfileFragment() {
     override var currentUser: User? = null
 
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -49,7 +51,7 @@ class OthersProfileFragment: ProfileFragment() {
                         profileBinding.profilePostsProgressBar.isVisible = false
                         profileBinding.btnFollow.isVisible = true
                         currentUser = it.peekContent().data
-                        checkIfUserIsFollowed(currentUid)
+                        checkIfUserIsFollowed(currentUser, currentUid)
                     }
                     is Resource.Loading -> {
                         profileBinding.profilePostsProgressBar.isVisible = true
@@ -61,11 +63,49 @@ class OthersProfileFragment: ProfileFragment() {
         }
 
 
+        profileBinding.btnFollow.setOnClickListener {
+            viewModel.toggleFollow(uid)
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.toggleFollowState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        profileBinding.btnFollow.isEnabled = true
+                        currentUser = it.peekContent().data
+
+                        currentUser?.let { user ->
+                            profileBinding.followersTv.text = "${user.followers.size}\nfollowers"
+                            profileBinding.followingTv.text = "${user.following.size}\nfollowing"
+                            checkIfUserIsFollowed(user, currentUid)
+                        }
+
+
+
+                    }
+
+                    is Resource.Error -> {
+                        profileBinding.btnFollow.isEnabled = true
+                        it.getContentIfNotHandled()?.let { error ->
+                            error.message?.let { message ->
+                                snackbar(message)
+                            }
+                        }
+                    }
+
+                    is Resource.Loading -> { profileBinding.btnFollow.isEnabled = false }
+
+                    is Resource.Empty -> Unit
+                }
+            }
+        }
+
+
     }
 
 
     @SuppressLint("SetTextI18n")
-    private fun checkIfUserIsFollowed(currentUid: String) {
+    private fun checkIfUserIsFollowed(currentUser: User?, currentUid: String) {
         currentUser?.let {
             if(it.followers.contains(currentUid)) {
                 profileBinding.btnFollow.apply {
@@ -73,6 +113,7 @@ class OthersProfileFragment: ProfileFragment() {
                     setTextColor(Color.BLACK)
                     setBackgroundColor(Color.WHITE)
                 }
+
             }
             else {
                 profileBinding.btnFollow.apply {

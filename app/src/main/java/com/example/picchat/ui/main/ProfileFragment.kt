@@ -80,6 +80,18 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
             )
         }
 
+        profileBinding.followingTv.setOnClickListener {
+            findNavController().navigate(
+                    ProfileFragmentDirections.launchUserResultsFragment(currentUser!!.uid, "Following")
+            )
+        }
+
+        profileBinding.followersTv.setOnClickListener {
+            findNavController().navigate(
+                    ProfileFragmentDirections.launchUserResultsFragment(currentUser!!.uid, "Followers")
+            )
+        }
+
 
         profileBinding.swipeRefreshProfile.setOnRefreshListener {
             if(uid != NO_UID) {
@@ -88,11 +100,18 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
             profileBinding.swipeRefreshProfile.isRefreshing = false
         }
 
-
-
-        if(uid != NO_UID) {
-            viewModel.loadProfile(uid)
+        profilePostAdapter.setOnPostClickListener { authorUid, position ->
+            findNavController().navigate(
+                    ProfileFragmentDirections.launchProfilePostsFragment(
+                            authorUid,
+                            position
+                    )
+            )
         }
+
+
+
+        viewModel.loadProfile(uid)
 
         collectUserData()
 
@@ -127,7 +146,7 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
                         profileBinding.profileUsernameTv.text = currentUser!!.username
                         profileBinding.postsTv.text = "${currentUser!!.posts}\nposts"
                         profileBinding.followersTv.text = "${currentUser!!.followers.size}\nfollowers"
-                        profileBinding.followingTv.text = "${currentUser!!.followers.size}\nfollowing"
+                        profileBinding.followingTv.text = "${currentUser!!.following.size}\nfollowing"
 
                         viewModel.posts.collect {
                             when(it.peekContent()) {

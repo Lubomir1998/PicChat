@@ -3,7 +3,6 @@ package com.example.picchat.ui.main
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.picchat.R
 import com.example.picchat.adapters.PostAdapter
 import com.example.picchat.databinding.HomeFragmentBinding
 import com.example.picchat.other.Constants.KEY_EMAIL
@@ -29,14 +27,14 @@ import com.example.picchat.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
-import kotlin.math.log
 
 @AndroidEntryPoint
-class HomeFragment: Fragment(R.layout.home_fragment) {
+class HomeFragment: Fragment() {
 
     private lateinit var binding: HomeFragmentBinding
 
     private val viewModel: HomeViewModel by viewModels()
+
 
     @Inject
     lateinit var postAdapter: PostAdapter
@@ -56,22 +54,23 @@ class HomeFragment: Fragment(R.layout.home_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setUpRecyclerView()
+
         binding.swipeRefreshHome.setOnRefreshListener {
             viewModel.getPosts()
             binding.swipeRefreshHome.isRefreshing = false
         }
 
-        setUpRecyclerView()
 
-        postAdapter.setOnUsernameClickListener {
+        postAdapter.setOnUsernameClickListener { uid, _ ->
             findNavController().navigate(
-                    HomeFragmentDirections.actionHomeFragmentToOthersProfileFragment(it)
+                    HomeFragmentDirections.actionHomeFragmentToOthersProfileFragment(uid)
             )
         }
 
-        postAdapter.setOnCommentTvClickListener {
+        postAdapter.setOnCommentTvClickListener { post, _ ->
             findNavController().navigate(
-                    HomeFragmentDirections.launchCommentsFragment(it.id)
+                    HomeFragmentDirections.launchCommentsFragment(post.id)
             )
         }
 
@@ -120,14 +119,5 @@ class HomeFragment: Fragment(R.layout.home_fragment) {
     }
 
 
-    private fun logout() {
-        sharedPrefs.edit()
-            .putString(KEY_UID, NO_UID)
-            .putString(KEY_EMAIL, NO_EMAIL)
-            .putString(KEY_PASSWORD, NO_PASSWORD)
-            .apply()
-
-        startActivity(Intent(requireContext(), AuthActivity::class.java))
-    }
 
 }

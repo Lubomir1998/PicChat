@@ -3,10 +3,7 @@ package com.example.picchat.data
 import com.example.picchat.data.entities.Comment
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
-import com.example.picchat.data.requests.AccountRequest
-import com.example.picchat.data.requests.Auth
-import com.example.picchat.data.requests.ToggleLikeRequest
-import com.example.picchat.data.requests.UpdateUserRequest
+import com.example.picchat.data.requests.*
 import com.example.picchat.data.responses.SimpleResponse
 import kotlinx.coroutines.flow.Flow
 import okhttp3.ResponseBody
@@ -53,6 +50,15 @@ interface ApiService {
 
     @GET("/getComments/{id}")
     suspend fun getComments(@Path("id") postId: String): Response<List<Comment>>
+
+    @POST("/toggleFollow")
+    suspend fun toggleFollow(@Body toggleFollowRequest: ToggleFollowRequest): Response<SimpleResponse>
+
+    @GET("/getFollowers/{uid}")
+    suspend fun getFollowers(@Path("uid") uid: String): Response<List<String>>
+
+    @GET("/getFollowing/{uid}")
+    suspend fun getFollowing(@Path("uid") uid: String): Response<List<String>>
 
 
 }

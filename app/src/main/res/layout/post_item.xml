@@ -4,17 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/postAuthorImg"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        tools:src="@color/black"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@color/black" />
 
     <ImageView
         android:id="@+id/postImg"
@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postImg"
         app:srcCompat="@drawable/like_img" />
@@ -55,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toEndOf="@+id/btnLikePost"
         app:layout_constraintTop_toBottomOf="@+id/postImg"
         app:srcCompat="@drawable/comment_img" />
@@ -64,45 +64,46 @@
         android:id="@+id/postLikesTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        tools:text="20 Likes"
+        android:layout_marginTop="12dp"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="@+id/btnLikePost"
-        app:layout_constraintTop_toBottomOf="@+id/btnLikePost" />
+        app:layout_constraintTop_toBottomOf="@+id/btnLikePost"
+        tools:text="20 Likes" />
 
     <TextView
         android:id="@+id/postUsernameDescriptionTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:textColor="@color/black"
         android:textSize="18sp"
-        android:visibility="visible"
         android:textStyle="bold"
+        android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/postLikesTv"
         app:layout_constraintTop_toBottomOf="@+id/postLikesTv"
         tools:text="lubcho98" />
 
     <TextView
         android:id="@+id/postDescriptionTv"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        tools:text="Memories from uni"
-        android:textSize="18sp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:textColor="#6e6e6e"
+        android:textSize="18sp"
         android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/postUsernameDescriptionTv"
         app:layout_constraintTop_toTopOf="@id/postUsernameDescriptionTv"
-        tools:layout_editor_absoluteY="228dp" />
+        tools:text="Memories from uni" />
 
     <TextView
         android:id="@+id/postCommentsTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:textColor="#9e9e9e"
         android:textSize="18sp"
         android:visibility="visible"
@@ -113,10 +114,10 @@
     <TextView
         android:id="@+id/postDateTv"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="8dp"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -5,6 +5,8 @@ import android.net.Uri
 import com.example.picchat.data.ApiService
 import com.example.picchat.data.entities.Comment
 import com.example.picchat.data.entities.Post
+import com.example.picchat.data.entities.User
+import com.example.picchat.data.requests.ToggleFollowRequest
 import com.example.picchat.data.requests.ToggleLikeRequest
 import com.example.picchat.data.requests.UpdateUserRequest
 import com.example.picchat.other.Constants.DEFAULT_PROFILE_IMG_URL
@@ -112,6 +114,23 @@ class MainRepository
         }
     }
 
+    suspend fun toggleFollow(uid: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.toggleFollow(ToggleFollowRequest(uid))
+            if(response.isSuccessful && response.body()!!.isSuccessful) {
+                val user = getUser(uid).data ?: throw Exception()
+                val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+                user.isFollowing = currentUid in user.followers
+
+                Resource.Success(user)
+            }
+            else {
+                Resource.Error("Something went wrong")
+            }
+        }
+    }
+
     suspend fun toggleLike(postId: String, uid: String) = withContext(Dispatchers.IO) {
         safeCall {
             val response = api.toggleLike(ToggleLikeRequest(postId, uid))
@@ -147,6 +166,35 @@ class MainRepository
             else {
                 Resource.Error(response.body()?.message ?: response.message())
             }
+        }
+    }
+
+    suspend fun getFollowers(uid: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val followersUids = api.getFollowers(uid).body() ?: throw Exception()
+            val followers: MutableList<User> = mutableListOf()
+
+            for(id in followersUids) {
+                val user = getUser(id).data!!
+                followers.add(user)
+            }
+
+            Resource.Success(followers.toList())
+        }
+    }
+
+    suspend fun getFollowing(uid: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val followingUids = api.getFollowing(uid).body() ?: throw Exception()
+            val following: MutableList<User> = mutableListOf()
+
+            for(id in followingUids) {
+                val user = getUser(id).data!!
+                user.isFollowing = true
+                following.add(user)
+            }
+
+            Resource.Success(following.toList())
         }
     }
 

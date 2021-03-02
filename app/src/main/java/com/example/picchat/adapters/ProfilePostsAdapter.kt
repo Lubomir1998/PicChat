@@ -28,8 +28,20 @@ class ProfilePostsAdapter
 
         glide.load(post.imgUrl).into(holder.imageView)
 
+        holder.itemView.setOnClickListener {
+            onPostClickListener?.let {
+                it(post.authorUid, position)
+            }
+        }
+
     }
 
+
+    private var onPostClickListener: ((String, Int) -> Unit)? = null
+
+    fun setOnPostClickListener(listener: ((String, Int) -> Unit)) {
+        onPostClickListener = listener
+    }
 
 
     class ProfilePostDiffCallBack: DiffUtil.ItemCallback<Post>() {

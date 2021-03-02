@@ -10,6 +10,8 @@ import com.example.picchat.repositories.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,5 +42,45 @@ class ProfileViewModel
             _userFlow.value = Event((result))
         }
     }
+
+
+
+    private val _toggleFollowState = MutableStateFlow<Event<Resource<User>>>(Event(Resource.Empty()))
+    val toggleFollowState: StateFlow<Event<Resource<User>>> = _toggleFollowState
+
+    fun toggleFollow(uid: String) {
+        val flow = flow {
+            emit(repository.toggleFollow(uid))
+        }
+        _toggleFollowState.value = Event(Resource.Loading())
+        viewModelScope.launch {
+            flow.collect {
+                _toggleFollowState.value = Event(it)
+            }
+        }
+    }
+
+
+    private val _followers = MutableStateFlow<Event<Resource<List<User>>>>(Event(Resource.Empty()))
+    val followers: StateFlow<Event<Resource<List<User>>>> = _followers
+
+    fun getFollowers(uid: String) {
+        viewModelScope.launch {
+            val result = repository.getFollowers(uid)
+            _followers.value = Event((result))
+        }
+    }
+
+
+    private val _following = MutableStateFlow<Event<Resource<List<User>>>>(Event(Resource.Empty()))
+    val following: StateFlow<Event<Resource<List<User>>>> = _following
+
+    fun getFollowing(uid: String) {
+        viewModelScope.launch {
+            val result = repository.getFollowing(uid)
+            _followers.value = Event((result))
+        }
+    }
+
 
 }

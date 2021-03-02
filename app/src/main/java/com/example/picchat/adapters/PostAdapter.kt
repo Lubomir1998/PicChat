@@ -80,19 +80,19 @@ class PostAdapter
 
             postCommentsTv.setOnClickListener {
                 onCommentTvClickListener?.let {
-                    it(post)
+                    it(post, position)
                 }
             }
 
             usernameDescriptionTv.setOnClickListener {
                 onUsernameClickListener?.let {
-                    it(post.authorUid)
+                    it(post.authorUid, position)
                 }
             }
 
             postAuthorUsernameTv.setOnClickListener {
                 onUsernameClickListener?.let {
-                    it(post.authorUid)
+                    it(post.authorUid, position)
                 }
             }
 
@@ -104,7 +104,7 @@ class PostAdapter
 
             btnComment.setOnClickListener {
                 onCommentTvClickListener?.let {
-                    it(post)
+                    it(post, position)
                 }
             }
 
@@ -113,17 +113,17 @@ class PostAdapter
     }
 
 
-    private var onCommentTvClickListener: ((Post) -> Unit)? = null
+    private var onCommentTvClickListener: ((Post, Int) -> Unit)? = null
 
-    fun setOnCommentTvClickListener(listener: ((Post) -> Unit)) {
+    fun setOnCommentTvClickListener(listener: ((Post, Int) -> Unit)) {
         onCommentTvClickListener = listener
     }
 
 
 
-    private var onUsernameClickListener: ((String) -> Unit)? = null
+    private var onUsernameClickListener: ((String, Int) -> Unit)? = null
 
-    fun setOnUsernameClickListener(listener: (String) -> Unit) {
+    fun setOnUsernameClickListener(listener: (String, Int) -> Unit) {
         onUsernameClickListener = listener
     }
 

@@ -8,6 +8,16 @@
         app:destination="@id/commentsFragment"
         />
 
+   <action
+       android:id="@+id/launch_profile_posts_fragment"
+       app:destination="@id/profilePostsFragment"
+       />
+
+    <action
+        android:id="@+id/launch_user_results_fragment"
+        app:destination="@id/followFollowingUsersFragment"
+        />
+
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.picchat.ui.main.HomeFragment"
@@ -70,6 +80,42 @@
             app:destination="@id/othersProfileFragment" />
         <action
             android:id="@+id/action_commentsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profilePostsFragment"
+        android:name="com.example.picchat.ui.main.ProfilePostsFragment"
+        android:label="ProfilePostsFragment" >
+        <argument
+            android:name="uid"
+            app:argType="string"/>
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="999999"/>
+        <action
+            android:id="@+id/action_profilePostsFragment_to_othersProfileFragment"
+            app:destination="@id/othersProfileFragment" />
+        <action
+            android:id="@+id/action_profilePostsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/followFollowingUsersFragment"
+        android:name="com.example.picchat.ui.main.FollowFollowingUsersFragment"
+        android:label="FollowFollowingUsersFragment" >
+        <argument
+            android:name="uid"
+            app:argType="string"
+            android:defaultValue="qqqqqq" />
+        <argument
+            android:name="request"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_followFollowingUsersFragment_to_othersProfileFragment"
+            app:destination="@id/othersProfileFragment" />
+        <action
+            android:id="@+id/action_followFollowingUsersFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
 </navigation>

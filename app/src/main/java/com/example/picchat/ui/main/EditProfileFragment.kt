@@ -2,6 +2,7 @@ package com.example.picchat.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,9 +20,11 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.RequestManager
 import com.example.picchat.R
 import com.example.picchat.databinding.EditProfileFragmentBinding
+import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.DEFAULT_PROFILE_IMG_URL
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
+import com.example.picchat.ui.auth.AuthActivity
 import com.example.picchat.viewmodels.EditProfileViewModel
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -38,6 +41,9 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
 
     @Inject
     lateinit var glide: RequestManager
+
+    @Inject
+    lateinit var sharedPrefs: SharedPreferences
 
     private lateinit var cropContent: ActivityResultLauncher<String>
     private var currentUri: Uri? = null
@@ -105,6 +111,11 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
             viewModel.updateProfile(currentUri, username, bio)
         }
 
+
+        binding.logOutTv.setOnClickListener {
+            logout()
+        }
+
         lifecycleScope.launchWhenStarted {
             viewModel.updateProfileState.collect {
                 when(it.peekContent()) {
@@ -144,6 +155,16 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
 
 
 
+    }
+
+    private fun logout() {
+        sharedPrefs.edit()
+                .putString(Constants.KEY_UID, Constants.NO_UID)
+                .putString(Constants.KEY_EMAIL, Constants.NO_EMAIL)
+                .putString(Constants.KEY_PASSWORD, Constants.NO_PASSWORD)
+                .apply()
+
+        startActivity(Intent(requireContext(), AuthActivity::class.java))
     }
 
 }
