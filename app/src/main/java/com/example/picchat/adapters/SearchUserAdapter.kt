@@ -35,6 +35,8 @@ class SearchUserAdapter
     override fun onBindViewHolder(holder: SearchUserViewHolder, position: Int) {
         val user = getItem(position)
 
+        val currentUid = sharedPreferences.getString(KEY_UID, NO_UID) ?: NO_UID
+
         holder.apply {
             glide.load(user.profileImgUrl).into(userImg)
             usernameTv.text = user.username
@@ -46,14 +48,9 @@ class SearchUserAdapter
                             this.isEnabled = true
                         }
                     }
-                    user.uid == sharedPreferences.getString(KEY_UID, NO_UID) ?: NO_UID -> {
+                    user.uid == currentUid -> {
                         "Me".also {
-                            this.apply {
-                                isEnabled = false
-                                setTextColor(Color.BLACK)
-                                setBackgroundColor(Color.WHITE)
-                            }
-
+                            this.isEnabled = false
                         }
                     }
                     else -> {
@@ -62,8 +59,8 @@ class SearchUserAdapter
                         }
                     }
                 }
-                setTextColor(if (user.isFollowing) Color.BLACK else Color.WHITE)
-                setBackgroundColor(if (user.isFollowing) Color.WHITE else Color.parseColor("#14B6FA"))
+                setTextColor(if (user.isFollowing || user.uid == currentUid) Color.BLACK else Color.WHITE)
+                setBackgroundColor(if (user.isFollowing || user.uid == currentUid) Color.WHITE else Color.parseColor("#14B6FA"))
 
                 setOnClickListener {
                     onBtnFollowClickListener?.let {

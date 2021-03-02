@@ -14,6 +14,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import com.example.picchat.adapters.PostAdapter
 import com.example.picchat.databinding.ProfilePostsFragmentBinding
+import com.example.picchat.other.Constants.DEF_VALUE
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -50,18 +51,6 @@ class ProfilePostsFragment: Fragment() {
 
         val uid = args.uid
         val position = args.position
-                .also {
-                    sharedPreferences.edit().putInt("pos", it).apply()
-                }
-
-//        if(position == 999999) {
-//            position = sharedPreferences.getInt("pos", 0)
-//        }
-//
-//        if(uid == "qqqqqq") {
-//            uid = sharedPreferences.getString("id", NO_UID) ?: NO_UID
-//        }
-
 
         setupViewPager()
 
@@ -73,30 +62,24 @@ class ProfilePostsFragment: Fragment() {
                     is Resource.Success -> {
                         val posts = result.data!!.reversed()
                         postAdapter.submitList(posts)
-                        binding.viewPagerProfilePosts.currentItem = if(sharedPreferences.getInt("pos2", 999999) != 999999) {
-                            sharedPreferences.getInt("pos2", 999999)
-                        }
-                        else {
-                            position
-                        }
+                        binding.viewPagerProfilePosts.currentItem = position
                     }
                 }
             }
         }
 
         postAdapter.setOnCommentTvClickListener { post, pos ->
-            sharedPreferences.edit().putInt("pos2", pos).apply()
-            sharedPreferences.edit().putString("id", uid).apply()
-
             findNavController().navigate(
-                    ProfilePostsFragmentDirections.launchCommentsFragment(post.id)
+                    ProfilePostsFragmentDirections.launchCommentsFragment(
+                            post.id,
+                            pos,
+                            "post",
+                            uid
+                    )
             )
         }
 
         postAdapter.setOnUsernameClickListener { id, pos ->
-            sharedPreferences.edit().putInt("pos", pos).apply()
-            sharedPreferences.edit().putString("id", uid).apply()
-
             if(currentUid == id) {
                 findNavController().navigate(
                         ProfilePostsFragmentDirections.actionProfilePostsFragmentToProfileFragment()

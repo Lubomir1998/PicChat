@@ -1,7 +1,16 @@
 package com.example.picchat.adapters
 
+import android.annotation.SuppressLint
+import android.graphics.Color
+import android.os.Build
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -24,7 +33,6 @@ class PostAdapter
         val btnLike = itemView.btnLikePost
         val btnComment = itemView.btnCommentPost
         val postLikesTv = itemView.postLikesTv
-        val usernameDescriptionTv = itemView.postUsernameDescriptionTv
         val postDescriptionTv = itemView.postDescriptionTv
         val postCommentsTv = itemView.postCommentsTv
         val dateTv = itemView.postDateTv
@@ -36,6 +44,8 @@ class PostAdapter
         return PostViewHolder(binding)
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = getItem(position)
 
@@ -56,11 +66,21 @@ class PostAdapter
                 }
             }
 
-            usernameDescriptionTv.isVisible = post.description.isNotEmpty()
             postDescriptionTv.isVisible = post.description.isNotEmpty().also {
                 if(it) {
-                    usernameDescriptionTv.text = post.authorUsername
-                    postDescriptionTv.text = post.description
+                    val usernameBuilder = SpannableStringBuilder("${post.authorUsername}  ${post.description}")
+
+                    val usernameColorSpan = ForegroundColorSpan(Color.BLACK)
+                    val usernameStyleSpan = StyleSpan(android.graphics.Typeface.BOLD)
+
+                    usernameBuilder.apply {
+                        setSpan(usernameColorSpan, 0, post.authorUsername.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                        setSpan(usernameStyleSpan, 0, post.authorUsername.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    }
+
+
+                    postDescriptionTv.text = usernameBuilder
+
                 }
             }
 
@@ -84,11 +104,6 @@ class PostAdapter
                 }
             }
 
-            usernameDescriptionTv.setOnClickListener {
-                onUsernameClickListener?.let {
-                    it(post.authorUid, position)
-                }
-            }
 
             postAuthorUsernameTv.setOnClickListener {
                 onUsernameClickListener?.let {

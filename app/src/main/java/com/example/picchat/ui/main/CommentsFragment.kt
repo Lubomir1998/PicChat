@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -145,6 +146,18 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
         }
 
 
+        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if(args.sender == "post") {
+                    findNavController().navigate(
+                            CommentsFragmentDirections.launchProfilePostsFragment(
+                                    args.uid,
+                                    args.position
+                            )
+                    )
+                }
+            }
+        })
 
 
 
@@ -158,5 +171,9 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
             setHasFixedSize(true)
         }
     }
+
+
+
+
 
 }

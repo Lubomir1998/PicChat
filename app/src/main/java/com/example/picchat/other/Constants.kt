@@ -13,5 +13,7 @@ object Constants {
     const val NO_PASSWORD = "NO_PASSWORD"
     const val NO_UID = "NO_UID"
 
+    const val DEF_VALUE = 999999
+
 
 }

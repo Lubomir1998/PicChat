@@ -81,6 +81,18 @@
         <action
             android:id="@+id/action_commentsFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="999999" />
+        <argument
+            android:name="sender"
+            app:argType="string"
+            android:defaultValue=""/>
+        <argument
+            android:name="uid"
+            app:argType="string"
+            android:defaultValue="qqqqqq"/>
     </fragment>
     <fragment
         android:id="@+id/profilePostsFragment"
