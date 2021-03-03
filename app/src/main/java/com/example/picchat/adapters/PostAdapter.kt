@@ -123,6 +123,10 @@ class PostAdapter
                 }
             }
 
+            btnLike.setOnClickListener {
+                if(!post.isLiking) onLikeBtnClickListener?.let { it(post, position) }
+            }
+
         }
 
     }
@@ -148,6 +152,13 @@ class PostAdapter
 
     fun setOnLikesClickListener(listener: (Post) -> Unit) {
         onLikesClickListener = listener
+    }
+
+
+    private var onLikeBtnClickListener: ((Post, Int) -> Unit)? = null
+
+    fun setOnLikeBtnClickListener(listener: (Post, Int) -> Unit) {
+        onLikeBtnClickListener = listener
     }
 
 

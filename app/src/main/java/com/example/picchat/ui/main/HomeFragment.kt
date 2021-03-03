@@ -1,6 +1,5 @@
 package com.example.picchat.ui.main
 
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,15 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.adapters.PostAdapter
 import com.example.picchat.databinding.HomeFragmentBinding
-import com.example.picchat.other.Constants.KEY_EMAIL
-import com.example.picchat.other.Constants.KEY_PASSWORD
 import com.example.picchat.other.Constants.KEY_UID
-import com.example.picchat.other.Constants.NO_EMAIL
-import com.example.picchat.other.Constants.NO_PASSWORD
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
-import com.example.picchat.ui.auth.AuthActivity
 import com.example.picchat.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -34,6 +28,8 @@ class HomeFragment: Fragment() {
     private lateinit var binding: HomeFragmentBinding
 
     private val viewModel: HomeViewModel by viewModels()
+
+    private var position = 0
 
 
     @Inject
@@ -74,8 +70,73 @@ class HomeFragment: Fragment() {
             )
         }
 
+        postAdapter.setOnLikeBtnClickListener { post, index ->
+            position = index
+            viewModel.toggleLike(post.id)
+        }
+
+        postAdapter.setOnLikesClickListener {
+            findNavController().navigate(
+                    HomeFragmentDirections.launchUserResultsFragment(
+                            it.id,
+                            "Likes"
+                    )
+            )
+        }
+
         viewModel.getPosts()
 
+        collectHomePosts()
+
+
+        collectIsLikedState()
+
+
+    }
+
+
+    private fun collectIsLikedState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.isLikedState.collect {
+                when(val result = it.peekContent()) {
+                    is Resource.Success -> {
+                        val post = postAdapter.currentList[position]
+
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+                        post.apply {
+                            isLiking = false
+                            isLiked = result.data!!
+                            if(isLiked) {
+                                likes += currentUid
+                            }
+                            else {
+                                likes -= currentUid
+                            }
+                        }
+
+                        postAdapter.notifyItemChanged(position)
+
+                    }
+
+                    is Resource.Error -> {
+                        val post = postAdapter.currentList[position]
+                        post.isLiking = false
+                        snackbar(it.getContentIfNotHandled()?.message ?: "Something went wrong")
+                    }
+
+                    is Resource.Loading -> {
+                        val post = postAdapter.currentList[position]
+                        post.isLiking = true
+                    }
+
+                    is Resource.Empty -> Unit
+                }
+            }
+        }
+    }
+
+    private fun collectHomePosts() {
         lifecycleScope.launchWhenStarted {
             viewModel.posts.collect {
                 when(val result = it.peekContent()) {
@@ -104,10 +165,7 @@ class HomeFragment: Fragment() {
                 }
             }
         }
-
-
     }
-
 
     private fun setUpRecyclerView() {
         binding.recyclerViewHome.apply {

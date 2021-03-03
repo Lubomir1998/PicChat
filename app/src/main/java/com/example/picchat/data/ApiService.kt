@@ -5,7 +5,6 @@ import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.data.requests.*
 import com.example.picchat.data.responses.SimpleResponse
-import kotlinx.coroutines.flow.Flow
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -50,6 +49,9 @@ interface ApiService {
 
     @GET("/getComments/{id}")
     suspend fun getComments(@Path("id") postId: String): Response<List<Comment>>
+
+    @GET("/getPost/{id}")
+    suspend fun getPostById(@Path("id") postId: String): Response<Post?>
 
     @POST("/toggleFollow")
     suspend fun toggleFollow(@Body toggleFollowRequest: ToggleFollowRequest): Response<SimpleResponse>

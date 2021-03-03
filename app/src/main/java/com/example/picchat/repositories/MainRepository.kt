@@ -131,11 +131,20 @@ class MainRepository
         }
     }
 
-    suspend fun toggleLike(postId: String, uid: String) = withContext(Dispatchers.IO) {
+    private suspend fun getPost(postId: String): Post? {
+        val response = api.getPostById(postId)
+
+        return response.body()
+    }
+
+    suspend fun toggleLike(postId: String) = withContext(Dispatchers.IO) {
         safeCall {
-            val response = api.toggleLike(ToggleLikeRequest(postId, uid))
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+            val response = api.toggleLike(ToggleLikeRequest(postId, currentUid))
             if(response.isSuccessful) {
-                Resource.Success(Any())
+                val post = getPost(postId) ?: throw Exception()
+                val isLiked = currentUid in post.likes
+                Resource.Success(isLiked)
             }
             else {
                 Resource.Error("Something went wrong")
@@ -248,6 +257,22 @@ class MainRepository
                 Resource.Success(it)
             } ?: Resource.Error("Something went wrong")
 
+        }
+    }
+
+    suspend fun getLikes(postId: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val post = api.getPostById(postId).body() ?: throw Exception()
+            val likes = post.likes
+
+            val likesList = mutableListOf<User>()
+
+            for (uid in likes) {
+                val user = getUser(uid).data ?: throw Exception()
+                likesList.add(user)
+            }
+
+            Resource.Success(likesList.toList())
         }
     }
 

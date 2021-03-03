@@ -2,6 +2,7 @@ package com.example.picchat.ui.main
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,11 +52,16 @@ class FollowFollowingUsersFragment: Fragment() {
 
         setUpRecyclerView()
 
-        if(request == "Followers") {
-            viewModel.getFollowers(uid)
-        }
-        else if(request == "Following") {
-            viewModel.getFollowing(uid)
+        when (request) {
+            "Followers" -> {
+                viewModel.getFollowers(uid)
+            }
+            "Following" -> {
+                viewModel.getFollowing(uid)
+            }
+            "Likes" -> {
+                viewModel.getLikes(uid)
+            }
         }
 
         usersAdapter.setOnUserClicked {
@@ -82,20 +88,54 @@ class FollowFollowingUsersFragment: Fragment() {
 
         collectFollowsStateFlow()
 
+        collectLikes()
 
     }
 
+
+    private fun collectLikes() {
+        lifecycleScope.launchWhenStarted {
+
+            viewModel.likes.collect {
+                when(val result = it.peekContent()) {
+                    is Resource.Success -> {
+                        val likes = result.data!!
+                        usersAdapter.submitList(likes)
+                    }
+
+                    is Resource.Error -> {
+                        it.getContentIfNotHandled()?.let { error ->
+                            error.message?.let { message ->
+                                snackbar(message)
+                            }
+
+                        }
+                    }
+
+                    is Resource.Loading -> { }
+
+                    is Resource.Empty -> Unit
+
+                }
+            }
+        }
+    }
 
     private fun collectToggleFollowStateFlow(uid: String, request: String) {
         lifecycleScope.launchWhenStarted {
             viewModel.toggleFollowState.collect {
                 when (it.peekContent()) {
                     is Resource.Success -> {
-                        if(request == "Followers") {
-                            viewModel.getFollowers(uid)
-                        }
-                        else if(request == "Following") {
-                            viewModel.getFollowing(uid)
+                        when (request) {
+                            "Followers" -> {
+                                viewModel.getFollowers(uid)
+                            }
+                            "Following" -> {
+                                viewModel.getFollowing(uid)
+                            }
+                            "Likes" -> {
+                                viewModel.getLikes(uid)
+                            }
                         }
                     }
 

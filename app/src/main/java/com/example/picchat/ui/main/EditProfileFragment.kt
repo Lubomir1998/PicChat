@@ -21,7 +21,6 @@ import com.bumptech.glide.RequestManager
 import com.example.picchat.R
 import com.example.picchat.databinding.EditProfileFragmentBinding
 import com.example.picchat.other.Constants
-import com.example.picchat.other.Constants.DEFAULT_PROFILE_IMG_URL
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.ui.auth.AuthActivity
@@ -165,6 +164,7 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
                 .apply()
 
         startActivity(Intent(requireContext(), AuthActivity::class.java))
+        requireActivity().finish()
     }
 
 }

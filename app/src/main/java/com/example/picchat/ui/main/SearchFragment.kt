@@ -89,7 +89,6 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
 
                         val users = result.data!!
                         searchAdapter.submitList(users)
-                        Log.d("TAG", "*************: $users")
                     }
 
                     is Resource.Error -> {

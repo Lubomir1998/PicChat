@@ -83,4 +83,16 @@ class ProfileViewModel
     }
 
 
+    private val _likes = MutableStateFlow<Event<Resource<List<User>>>>(Event(Resource.Empty()))
+    val likes: StateFlow<Event<Resource<List<User>>>> = _likes
+
+    fun getLikes(postId: String) {
+        _likes.value = Event(Resource.Loading())
+        viewModelScope.launch {
+            val result = repository.getLikes(postId)
+            _likes.value = Event(result)
+        }
+    }
+
+
 }
