@@ -130,6 +130,7 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
                         profileBinding.profileProgressBar.isVisible = false
                         currentUser = result.data
 
+                        (activity as MainActivity?)?.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)?.title = currentUser?.username
 
                         viewModel.getPosts(uid)
 

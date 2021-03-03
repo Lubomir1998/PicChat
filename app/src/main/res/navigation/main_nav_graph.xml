@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.picchat.ui.main.HomeFragment"
-        android:label="HomeFragment" >
+        android:label="Pic Chat">
         <action
             android:id="@+id/action_homeFragment_to_othersProfileFragment"
             app:destination="@id/othersProfileFragment" />
@@ -32,8 +32,7 @@
         android:label="CreatePostFragment" />
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.picchat.ui.main.ProfileFragment"
-        android:label="ProfileFragment" >
+        android:name="com.example.picchat.ui.main.ProfileFragment">
         <action
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
@@ -41,15 +40,14 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.picchat.ui.main.SearchFragment"
-        android:label="SearchFragment" >
+        android:label="Search">
         <action
             android:id="@+id/action_searchFragment_to_othersProfileFragment"
             app:destination="@id/othersProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/othersProfileFragment"
-        android:name="com.example.picchat.ui.main.OthersProfileFragment"
-        android:label="OthersProfileFragment" >
+        android:name="com.example.picchat.ui.main.OthersProfileFragment">
         <argument
             android:name="uid"
             app:argType="string" />
@@ -57,7 +55,7 @@
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.picchat.ui.main.EditProfileFragment"
-        android:label="EditProfileFragment" >
+        android:label="Edit Profile">
         <argument
             android:name="profileImgUrl"
             app:argType="string" />
@@ -71,7 +69,7 @@
     <fragment
         android:id="@+id/commentsFragment"
         android:name="com.example.picchat.ui.main.CommentsFragment"
-        android:label="CommentsFragment" >
+        android:label="Comments">
         <argument
             android:name="postId"
             app:argType="string" />
@@ -83,28 +81,28 @@
             app:destination="@id/profileFragment" />
         <argument
             android:name="position"
-            app:argType="integer"
-            android:defaultValue="999999" />
+            android:defaultValue="999999"
+            app:argType="integer" />
         <argument
             android:name="sender"
-            app:argType="string"
-            android:defaultValue=""/>
+            android:defaultValue=""
+            app:argType="string" />
         <argument
             android:name="uid"
-            app:argType="string"
-            android:defaultValue="qqqqqq"/>
+            android:defaultValue="qqqqqq"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/profilePostsFragment"
         android:name="com.example.picchat.ui.main.ProfilePostsFragment"
-        android:label="ProfilePostsFragment" >
+        android:label="Posts">
         <argument
             android:name="uid"
-            app:argType="string"/>
+            app:argType="string" />
         <argument
             android:name="position"
-            app:argType="integer"
-            android:defaultValue="999999"/>
+            android:defaultValue="999999"
+            app:argType="integer" />
         <action
             android:id="@+id/action_profilePostsFragment_to_othersProfileFragment"
             app:destination="@id/othersProfileFragment" />
@@ -115,11 +113,11 @@
     <fragment
         android:id="@+id/followFollowingUsersFragment"
         android:name="com.example.picchat.ui.main.FollowFollowingUsersFragment"
-        android:label="FollowFollowingUsersFragment" >
+        android:label="{request}">
         <argument
             android:name="uid"
-            app:argType="string"
-            android:defaultValue="qqqqqq" />
+            android:defaultValue="qqqqqq"
+            app:argType="string" />
         <argument
             android:name="request"
             app:argType="string" />
