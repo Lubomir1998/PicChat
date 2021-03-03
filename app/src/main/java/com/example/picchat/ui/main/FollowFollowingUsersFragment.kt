@@ -31,6 +31,8 @@ class FollowFollowingUsersFragment: Fragment() {
 
     private val viewModel: ProfileViewModel by viewModels()
 
+    private var position = 0
+
     @Inject
     lateinit var usersAdapter: SearchUserAdapter
 
@@ -78,6 +80,7 @@ class FollowFollowingUsersFragment: Fragment() {
         }
 
         usersAdapter.setOnBtnFollowClickListener { id, pos ->
+            position = pos
             viewModel.toggleFollow(id)
         }
 
@@ -124,19 +127,24 @@ class FollowFollowingUsersFragment: Fragment() {
     private fun collectToggleFollowStateFlow(uid: String, request: String) {
         lifecycleScope.launchWhenStarted {
             viewModel.toggleFollowState.collect {
-                when (it.peekContent()) {
+                when (val result = it.peekContent()) {
                     is Resource.Success -> {
-                        when (request) {
-                            "Followers" -> {
-                                viewModel.getFollowers(uid)
+                        val user = usersAdapter.currentList[position]
+
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+                        user.apply {
+                            isFollowing = result.data!!
+
+                            if(isFollowing) {
+                                followers += currentUid
                             }
-                            "Following" -> {
-                                viewModel.getFollowing(uid)
-                            }
-                            "Likes" -> {
-                                viewModel.getLikes(uid)
+                            else {
+                                followers -= currentUid
                             }
                         }
+
+                        usersAdapter.notifyItemChanged(position)
                     }
 
                     is Resource.Error -> {

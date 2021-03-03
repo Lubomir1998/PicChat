@@ -144,10 +144,12 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
                             profileBinding.profileBioTv.text = currentUser!!.description.trim()
                         }
 
-                        profileBinding.profileUsernameTv.text = currentUser!!.username
-                        profileBinding.postsTv.text = "${currentUser!!.posts}\nposts"
-                        profileBinding.followersTv.text = "${currentUser!!.followers.size}\nfollowers"
-                        profileBinding.followingTv.text = "${currentUser!!.following.size}\nfollowing"
+                        profileBinding.apply {
+                            profileUsernameTv.text = currentUser!!.username
+                            postsTv.text = "${currentUser!!.posts}\nposts"
+                            followersTv.text = "${currentUser!!.followers.size}\nfollowers"
+                            followingTv.text = "${currentUser!!.following.size}\nfollowing"
+                        }
 
                         viewModel.posts.collect {
                             when(it.peekContent()) {

@@ -116,14 +116,12 @@ class MainRepository
 
     suspend fun toggleFollow(uid: String) = withContext(Dispatchers.IO) {
         safeCall {
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
             val response = api.toggleFollow(ToggleFollowRequest(uid))
-            if(response.isSuccessful && response.body()!!.isSuccessful) {
+            if(response.isSuccessful) {
                 val user = getUser(uid).data ?: throw Exception()
-                val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-
-                user.isFollowing = currentUid in user.followers
-
-                Resource.Success(user)
+                val isFollowed = currentUid in user.followers
+                Resource.Success(isFollowed)
             }
             else {
                 Resource.Error("Something went wrong")
@@ -182,9 +180,11 @@ class MainRepository
         safeCall {
             val followersUids = api.getFollowers(uid).body() ?: throw Exception()
             val followers: MutableList<User> = mutableListOf()
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: throw Exception()
 
             for(id in followersUids) {
                 val user = getUser(id).data!!
+                user.isFollowing = currentUid in user.followers
                 followers.add(user)
             }
 
@@ -196,10 +196,11 @@ class MainRepository
         safeCall {
             val followingUids = api.getFollowing(uid).body() ?: throw Exception()
             val following: MutableList<User> = mutableListOf()
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: throw Exception()
 
             for(id in followingUids) {
                 val user = getUser(id).data!!
-                user.isFollowing = true
+                user.isFollowing = currentUid in user.followers
                 following.add(user)
             }
 

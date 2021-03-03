@@ -45,8 +45,8 @@ class ProfileViewModel
 
 
 
-    private val _toggleFollowState = MutableStateFlow<Event<Resource<User>>>(Event(Resource.Empty()))
-    val toggleFollowState: StateFlow<Event<Resource<User>>> = _toggleFollowState
+    private val _toggleFollowState = MutableStateFlow<Event<Resource<Boolean>>>(Event(Resource.Empty()))
+    val toggleFollowState: StateFlow<Event<Resource<Boolean>>> = _toggleFollowState
 
     fun toggleFollow(uid: String) {
         val flow = flow {

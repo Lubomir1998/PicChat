@@ -54,7 +54,7 @@ interface ApiService {
     suspend fun getPostById(@Path("id") postId: String): Response<Post?>
 
     @POST("/toggleFollow")
-    suspend fun toggleFollow(@Body toggleFollowRequest: ToggleFollowRequest): Response<SimpleResponse>
+    suspend fun toggleFollow(@Body toggleFollowRequest: ToggleFollowRequest): Response<ResponseBody>
 
     @GET("/getFollowers/{uid}")
     suspend fun getFollowers(@Path("uid") uid: String): Response<List<String>>

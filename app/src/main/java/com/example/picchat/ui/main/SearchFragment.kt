@@ -33,6 +33,11 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
     private lateinit var binding: SearchFragmentBinding
     private val viewModel: SearchViewModel by viewModels()
 
+    private var position = 0
+
+    @Inject
+    lateinit var sharedPrefs: SharedPreferences
+
     @Inject
     lateinit var searchAdapter: SearchUserAdapter
 
@@ -62,6 +67,7 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
 
 
         searchAdapter.setOnBtnFollowClickListener { uid, pos ->
+            position = pos
             viewModel.toggleFollow(uid)
         }
 
@@ -112,9 +118,24 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
     private fun collectFollowStateData() {
         lifecycleScope.launchWhenStarted {
             viewModel.toggleFollowState.collect {
-                when (it.peekContent()) {
+                when (val result = it.peekContent()) {
                     is Resource.Success -> {
-                        viewModel.searchUsers(binding.etSearch.text.toString())
+                        val user = searchAdapter.currentList[position]
+
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+                        user.apply {
+                            isFollowing = result.data!!
+
+                            if(isFollowing) {
+                                followers += currentUid
+                            }
+                            else {
+                                followers -= currentUid
+                            }
+                        }
+
+                        searchAdapter.notifyItemChanged(position)
 
                     }
 

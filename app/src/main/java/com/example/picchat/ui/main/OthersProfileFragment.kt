@@ -69,15 +69,27 @@ class OthersProfileFragment: ProfileFragment() {
 
         lifecycleScope.launchWhenStarted {
             viewModel.toggleFollowState.collect {
-                when(it.peekContent()) {
+                when(val result = it.peekContent()) {
                     is Resource.Success -> {
-                        profileBinding.btnFollow.isEnabled = true
-                        currentUser = it.peekContent().data
+                        currentUser?.let {
+                            it.apply {
+                                isFollowing = result.data!!
 
-                        currentUser?.let { user ->
-                            profileBinding.followersTv.text = "${user.followers.size}\nfollowers"
-                            profileBinding.followingTv.text = "${user.following.size}\nfollowing"
-                            checkIfUserIsFollowed(user, currentUid)
+                                if(isFollowing) {
+                                    followers += currentUid
+                                }
+                                else {
+                                    followers -= currentUid
+                                }
+                            }
+                            checkIfUserIsFollowed(currentUser, currentUid)
+
+                            profileBinding.apply {
+                                profileUsernameTv.text = currentUser!!.username
+                                postsTv.text = "${currentUser!!.posts}\nposts"
+                                followersTv.text = "${currentUser!!.followers.size}\nfollowers"
+                                followingTv.text = "${currentUser!!.following.size}\nfollowing"
+                            }
                         }
 
 
