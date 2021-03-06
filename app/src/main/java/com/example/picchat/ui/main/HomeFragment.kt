@@ -12,8 +12,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.adapters.PostAdapter
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.HomeFragmentBinding
+import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.KEY_UID
+import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
@@ -31,6 +36,7 @@ class HomeFragment: Fragment() {
 
     private var position = 0
 
+    private var uid = "uid"
 
     @Inject
     lateinit var postAdapter: PostAdapter
@@ -51,6 +57,7 @@ class HomeFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setUpRecyclerView()
+        viewModel.getPosts()
 
         binding.swipeRefreshHome.setOnRefreshListener {
             viewModel.getPosts()
@@ -66,7 +73,7 @@ class HomeFragment: Fragment() {
 
         postAdapter.setOnCommentTvClickListener { post, _ ->
             findNavController().navigate(
-                    HomeFragmentDirections.launchCommentsFragment(post.id)
+                    HomeFragmentDirections.launchCommentsFragment(post.id, uid = post.authorUid, postImgUrl = post.imgUrl)
             )
         }
 
@@ -84,12 +91,10 @@ class HomeFragment: Fragment() {
             )
         }
 
-        viewModel.getPosts()
-
         collectHomePosts()
-
-
         collectIsLikedState()
+
+        collectAddNotificationState()
 
 
     }
@@ -105,10 +110,20 @@ class HomeFragment: Fragment() {
                         val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
 
                         post.apply {
+                            uid = authorUid
                             isLiking = false
                             isLiked = result.data!!
                             if(isLiked) {
                                 likes += currentUid
+                                viewModel.addNotification(
+                                    Notification(
+                                        currentUid,
+                                        authorUid,
+                                        LIKE_MESSAGE,
+                                        id,
+                                        imgUrl
+                                    )
+                                )
                             }
                             else {
                                 likes -= currentUid
@@ -131,6 +146,21 @@ class HomeFragment: Fragment() {
                     }
 
                     is Resource.Empty -> Unit
+                }
+            }
+        }
+    }
+
+
+    private fun collectAddNotificationState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.addNotificationState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, LIKE_MESSAGE), "/topics/$uid"))
+                    }
+                    else -> Unit
                 }
             }
         }

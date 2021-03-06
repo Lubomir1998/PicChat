@@ -1,5 +1,7 @@
 package com.example.picchat.other
 
+import com.example.picchat.BuildConfig
+
 object Constants {
 
     const val ENCRYPTED_SHARED_PREFS_NAME = "ENCRYPTED_SHARED_PREFS_NAME"
@@ -13,7 +15,13 @@ object Constants {
     const val NO_PASSWORD = "NO_PASSWORD"
     const val NO_UID = "NO_UID"
 
-    const val DEF_VALUE = 999999
+    const val SERVER_KEY = BuildConfig.SERVER_KEY
+    const val CONTENT_TYPE = "application/json"
 
+    const val CHANNEL_ID = "CHANNEL_ID"
+
+    const val COMMENT_MESSAGE = " commented on your post"
+    const val FOLLOW_MESSAGE = " started following you"
+    const val LIKE_MESSAGE = " liked your photo"
 
 }

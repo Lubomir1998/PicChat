@@ -11,6 +11,9 @@ import androidx.navigation.ui.NavigationUI.setupWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.picchat.R
 import com.example.picchat.databinding.ActivityMainBinding
+import com.example.picchat.other.Constants.KEY_UID
+import com.example.picchat.other.Constants.NO_UID
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -28,11 +31,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+        FirebaseMessaging.getInstance().subscribeToTopic("/topics/$currentUid")
+
         binding.bottomNav.setupWithNavController(supportFragmentManager.findFragmentById(R.id.main_nav_host_fragment)!!.findNavController())
 
         supportFragmentManager.findFragmentById(R.id.main_nav_host_fragment)!!.findNavController().addOnDestinationChangedListener { _, destination, _ ->
             when(destination.id){
-                 R.id.createPostFragment, R.id.notificationsFragment, R.id.commentsFragment, R.id.followFollowingUsersFragment ->
+                 R.id.createPostFragment, R.id.commentsFragment, R.id.followFollowingUsersFragment ->
                     binding.bottomNav.visibility = View.GONE
                 else ->
                     binding.bottomNav.visibility = View.VISIBLE

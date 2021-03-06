@@ -1,16 +1,16 @@
 package com.example.picchat.data
 
 import com.example.picchat.data.entities.Comment
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.data.requests.*
 import com.example.picchat.data.responses.SimpleResponse
+import com.example.picchat.other.Constants.CONTENT_TYPE
+import com.example.picchat.other.Constants.SERVER_KEY
 import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface ApiService {
 
@@ -38,6 +38,12 @@ interface ApiService {
     @POST("/addComment")
     suspend fun addComment(@Body comment: Comment): Response<SimpleResponse>
 
+    @POST("/addNotification")
+    suspend fun addNotification(@Body notification: Notification): Response<SimpleResponse>
+
+    @GET("/getActivity/{uid}")
+    suspend fun getActivity(@Path("uid") uid: String): Response<List<Notification>>
+
     @POST("/toggleLike")
     suspend fun toggleLike(@Body toggleLikeRequest: ToggleLikeRequest): Response<ResponseBody>
 
@@ -62,5 +68,7 @@ interface ApiService {
     @GET("/getFollowing/{uid}")
     suspend fun getFollowing(@Path("uid") uid: String): Response<List<String>>
 
+    @POST("/deleteComment")
+    suspend fun deleteComment(@Body comment: Comment): Response<SimpleResponse>
 
 }

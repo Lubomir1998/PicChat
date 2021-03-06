@@ -8,7 +8,11 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.User
+import com.example.picchat.other.Constants.FOLLOW_MESSAGE
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -71,12 +75,20 @@ class OthersProfileFragment: ProfileFragment() {
             viewModel.toggleFollowState.collect {
                 when(val result = it.peekContent()) {
                     is Resource.Success -> {
-                        currentUser?.let {
-                            it.apply {
+                        profileBinding.btnFollow.isEnabled = true
+                        currentUser?.let { user ->
+                            user.apply {
                                 isFollowing = result.data!!
 
                                 if(isFollowing) {
                                     followers += currentUid
+                                    viewModel.addNotification(
+                                        Notification(
+                                            currentUid,
+                                            uid,
+                                            FOLLOW_MESSAGE
+                                        )
+                                    )
                                 }
                                 else {
                                     followers -= currentUid
@@ -112,7 +124,22 @@ class OthersProfileFragment: ProfileFragment() {
             }
         }
 
+        collectAddNotificationState()
 
+    }
+
+    private fun collectAddNotificationState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.addNotificationState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, FOLLOW_MESSAGE), "/topics/${args.uid}"))
+                    }
+                    else -> Unit
+                }
+            }
+        }
     }
 
 

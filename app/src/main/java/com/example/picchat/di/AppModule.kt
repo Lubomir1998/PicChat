@@ -9,6 +9,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.picchat.R
 import com.example.picchat.data.ApiService
+import com.example.picchat.data.FirebaseApi
 import com.example.picchat.other.BasicAuthInterceptor
 import com.example.picchat.other.Constants.ENCRYPTED_SHARED_PREFS_NAME
 import com.google.gson.GsonBuilder
@@ -76,6 +77,16 @@ object AppModule {
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
+    }
+
+    @Singleton
+    @Provides
+    fun provideFirebaseApi(): FirebaseApi{
+        return Retrofit.Builder()
+            .baseUrl("https://fcm.googleapis.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(FirebaseApi::class.java)
     }
 
 }

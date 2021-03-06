@@ -10,10 +10,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.adapters.PostAdapter
-import com.example.picchat.databinding.ProfilePostsFragmentBinding
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
+import com.example.picchat.databinding.HomeFragmentBinding
 import com.example.picchat.other.Constants.KEY_UID
+import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
@@ -25,37 +29,42 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ProfilePostsFragment: Fragment() {
 
-    private lateinit var binding: ProfilePostsFragmentBinding
+    private lateinit var binding: HomeFragmentBinding
 
     private val viewModel: ProfileViewModel by viewModels()
+
+    private val args: ProfilePostsFragmentArgs by navArgs()
 
     @Inject
     lateinit var postAdapter: PostAdapter
 
     @Inject
-    lateinit var sharedPreferences: SharedPreferences
-
-    private val args: ProfilePostsFragmentArgs by navArgs()
+    lateinit var sharedPrefs: SharedPreferences
 
     private var index = 0
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = ProfilePostsFragmentBinding.inflate(inflater, container, false)
+        binding = HomeFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val currentUid = sharedPreferences.getString(KEY_UID, NO_UID) ?: NO_UID
+        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
 
         val uid = args.uid
         val position = args.position
 
-        setupViewPager()
+        setUpRecyclerView()
 
         viewModel.getPosts(uid)
+
+        binding.swipeRefreshHome.setOnRefreshListener {
+            viewModel.getPosts(uid)
+            binding.swipeRefreshHome.isRefreshing = false
+        }
 
         lifecycleScope.launchWhenStarted {
             viewModel.posts.collect {
@@ -63,7 +72,7 @@ class ProfilePostsFragment: Fragment() {
                     is Resource.Success -> {
                         val posts = result.data!!.reversed()
                         postAdapter.submitList(posts)
-                        binding.viewPagerProfilePosts.currentItem = position
+                        binding.recyclerViewHome.scrollToPosition(position)
                     }
                 }
             }
@@ -80,7 +89,8 @@ class ProfilePostsFragment: Fragment() {
                             post.id,
                             pos,
                             "post",
-                            uid
+                            uid,
+                        post.imgUrl
                     )
             )
         }
@@ -109,6 +119,8 @@ class ProfilePostsFragment: Fragment() {
 
         collectIsLikedState()
 
+        collectAddNotificationState()
+
     }
 
     private fun collectIsLikedState() {
@@ -118,13 +130,22 @@ class ProfilePostsFragment: Fragment() {
                     is Resource.Success -> {
                         val post = postAdapter.currentList[index]
 
-                        val currentUid = sharedPreferences.getString(KEY_UID, NO_UID) ?: NO_UID
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
 
                         post.apply {
                             isLiking = false
                             isLiked = result.data!!
                             if(isLiked) {
                                 likes += currentUid
+                                viewModel.addNotification(
+                                    Notification(
+                                        currentUid,
+                                        authorUid,
+                                        LIKE_MESSAGE,
+                                        id,
+                                        imgUrl
+                                    )
+                                )
                             }
                             else {
                                 likes -= currentUid
@@ -152,12 +173,28 @@ class ProfilePostsFragment: Fragment() {
         }
     }
 
-
-    private fun setupViewPager() {
-        binding.viewPagerProfilePosts.apply {
-            adapter = postAdapter
-            orientation = ViewPager2.ORIENTATION_VERTICAL
+    private fun collectAddNotificationState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.addNotificationState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, LIKE_MESSAGE), "/topics/${args.uid}"))
+                    }
+                    else -> Unit
+                }
+            }
         }
     }
+
+    private fun setUpRecyclerView() {
+        binding.recyclerViewHome.apply {
+            adapter = postAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            animation = null
+            setHasFixedSize(true)
+        }
+    }
+
 
 }

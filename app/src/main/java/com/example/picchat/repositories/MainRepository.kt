@@ -2,8 +2,12 @@ package com.example.picchat.repositories
 
 import android.content.SharedPreferences
 import android.net.Uri
+import android.util.Log
 import com.example.picchat.data.ApiService
+import com.example.picchat.data.FirebaseApi
+import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Comment
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.data.requests.ToggleFollowRequest
@@ -23,7 +27,10 @@ import java.util.*
 import javax.inject.Inject
 
 class MainRepository
-@Inject constructor(private val api: ApiService) {
+@Inject constructor(
+    private val api: ApiService,
+    private val firebaseApi: FirebaseApi
+    ) {
 
     @Inject
     lateinit var sharedPrefs: SharedPreferences
@@ -45,7 +52,7 @@ class MainRepository
                     }
                 }
 
-                Resource.Success(posts)
+                Resource.Success(it)
             } ?: Resource.Error("Error occurred")
         }
     }
@@ -276,5 +283,60 @@ class MainRepository
             Resource.Success(likesList.toList())
         }
     }
+
+
+    suspend fun addNotification(notification: Notification) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.addNotification(notification)
+
+            if(response.isSuccessful && response.body()!!.isSuccessful) {
+                Resource.Success(response.body()?.message)
+            }
+            else {
+                Resource.Error("Something went wrong")
+            }
+        }
+    }
+
+    suspend fun deleteComment(comment: Comment) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.deleteComment(comment)
+            if(response.isSuccessful && response.body()!!.isSuccessful) {
+                Resource.Success(response.body()?.message)
+            }
+            else {
+                Resource.Error("Error")
+            }
+        }
+    }
+
+    suspend fun getActivity() = withContext(Dispatchers.IO) {
+        safeCall {
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: throw Exception()
+            val notifications = api.getActivity(currentUid).body() ?: throw Exception()
+
+            notifications.onEach { notification ->
+                val user = api.getUserById(notification.senderUid) ?: throw Exception()
+
+                notification.apply {
+                    senderUsername = user.username
+                    senderProfileImgUrl = user.profileImgUrl
+                    isFollowing = currentUid in user.followers
+                }
+            }
+
+            Resource.Success(notifications)
+
+        }
+    }
+
+    //Firebase
+    suspend fun sendPushNotification(pushNotification: PushNotification) {
+        try {
+            firebaseApi.postNotification(pushNotification)
+        } catch (e: Exception) { }
+    }
+
+
 
 }

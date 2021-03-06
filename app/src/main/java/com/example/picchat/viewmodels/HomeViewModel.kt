@@ -18,13 +18,12 @@ import javax.inject.Inject
 class HomeViewModel
 @Inject constructor(private val repository: MainRepository): BasePostViewModel(repository) {
 
-    private val _posts = MutableStateFlow<Event<Resource<List<Post>>>>(Event(Resource.Empty()))
+    private val _posts = MutableStateFlow<Event<Resource<List<Post>>>>(Event(Resource.Loading()))
 
     override val posts: StateFlow<Event<Resource<List<Post>>>>
         get() = _posts
 
     override fun getPosts(uid: String) {
-        _posts.value = Event((Resource.Loading()))
         viewModelScope.launch {
             val result = repository.getPostsOfFollowing()
             _posts.value = Event(result)

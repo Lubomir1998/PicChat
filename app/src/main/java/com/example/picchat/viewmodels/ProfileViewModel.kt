@@ -2,6 +2,8 @@ package com.example.picchat.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.other.Event

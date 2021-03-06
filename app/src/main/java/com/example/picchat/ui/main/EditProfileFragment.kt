@@ -20,11 +20,17 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.RequestManager
 import com.example.picchat.R
 import com.example.picchat.databinding.EditProfileFragmentBinding
-import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.KEY_EMAIL
+import com.example.picchat.other.Constants.KEY_PASSWORD
+import com.example.picchat.other.Constants.KEY_UID
+import com.example.picchat.other.Constants.NO_EMAIL
+import com.example.picchat.other.Constants.NO_PASSWORD
+import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.ui.auth.AuthActivity
 import com.example.picchat.viewmodels.EditProfileViewModel
+import com.google.firebase.messaging.FirebaseMessaging
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
@@ -158,10 +164,13 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
 
     private fun logout() {
         sharedPrefs.edit()
-                .putString(Constants.KEY_UID, Constants.NO_UID)
-                .putString(Constants.KEY_EMAIL, Constants.NO_EMAIL)
-                .putString(Constants.KEY_PASSWORD, Constants.NO_PASSWORD)
+                .putString(KEY_UID, NO_UID)
+                .putString(KEY_EMAIL, NO_EMAIL)
+                .putString(KEY_PASSWORD, NO_PASSWORD)
                 .apply()
+
+        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+        FirebaseMessaging.getInstance().unsubscribeFromTopic("/topics/$currentUid")
 
         startActivity(Intent(requireContext(), AuthActivity::class.java))
         requireActivity().finish()

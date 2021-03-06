@@ -4,30 +4,47 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
-import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
 import com.example.picchat.other.Event
 import com.example.picchat.other.Resource
 import com.example.picchat.repositories.MainRepository
-import kotlinx.coroutines.GlobalScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-abstract class BasePostViewModel(private val repository: MainRepository): ViewModel() {
+@HiltViewModel
+class NotificationViewModel
+@Inject constructor(private val repository: MainRepository): ViewModel() {
 
-    abstract val posts: StateFlow<Event<Resource<List<Post>>>>
 
-    abstract fun getPosts(uid: String = "")
+    private val _notifications = MutableStateFlow<Event<Resource<List<Notification>>>>(Event(Resource.Empty()))
+    val notifications: StateFlow<Event<Resource<List<Notification>>>> = _notifications
 
-    private val _isLikedState = MutableStateFlow<Event<Resource<Boolean>>>(Event(Resource.Empty()))
-    val isLikedState: StateFlow<Event<Resource<Boolean>>> = _isLikedState
-
-    fun toggleLike(postId: String) {
-        _isLikedState.value = Event(Resource.Loading())
+    fun getNotifications() {
+        _notifications.value = Event(Resource.Loading())
         viewModelScope.launch {
-            val result = repository.toggleLike(postId)
-            _isLikedState.value = Event(result)
+            val result = repository.getActivity()
+            _notifications.value = Event(result)
+        }
+    }
+
+    private val _toggleFollowState = MutableStateFlow<Event<Resource<Boolean>>>(Event(Resource.Empty()))
+    val toggleFollowState: StateFlow<Event<Resource<Boolean>>> = _toggleFollowState
+
+
+    fun toggleFollow(uid: String) {
+        val flow = flow {
+            emit(repository.toggleFollow(uid))
+        }
+
+        viewModelScope.launch {
+            flow.collect {
+                _toggleFollowState.value = Event(it)
+            }
         }
     }
 
@@ -42,10 +59,10 @@ abstract class BasePostViewModel(private val repository: MainRepository): ViewMo
         }
     }
 
-
     fun sendPushNotification(pushNotification: PushNotification) = viewModelScope.launch {
         repository.sendPushNotification(pushNotification)
     }
+
 
 
 

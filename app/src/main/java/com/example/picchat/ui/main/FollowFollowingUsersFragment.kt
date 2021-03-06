@@ -2,7 +2,6 @@ package com.example.picchat.ui.main
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.adapters.SearchUserAdapter
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.FollowFollowingUsersFragmentBinding
+import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.FOLLOW_MESSAGE
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -32,6 +36,8 @@ class FollowFollowingUsersFragment: Fragment() {
     private val viewModel: ProfileViewModel by viewModels()
 
     private var position = 0
+
+    private var senderUid = NO_UID
 
     @Inject
     lateinit var usersAdapter: SearchUserAdapter
@@ -87,11 +93,13 @@ class FollowFollowingUsersFragment: Fragment() {
 
 
 
-        collectToggleFollowStateFlow(uid, request)
+        collectToggleFollowStateFlow()
 
         collectFollowsStateFlow()
 
         collectLikes()
+
+        collectAddNotificationState()
 
     }
 
@@ -124,7 +132,7 @@ class FollowFollowingUsersFragment: Fragment() {
         }
     }
 
-    private fun collectToggleFollowStateFlow(uid: String, request: String) {
+    private fun collectToggleFollowStateFlow() {
         lifecycleScope.launchWhenStarted {
             viewModel.toggleFollowState.collect {
                 when (val result = it.peekContent()) {
@@ -136,8 +144,17 @@ class FollowFollowingUsersFragment: Fragment() {
                         user.apply {
                             isFollowing = result.data!!
 
+                            senderUid = uid
+
                             if(isFollowing) {
                                 followers += currentUid
+                                viewModel.addNotification(
+                                    Notification(
+                                        currentUid,
+                                        uid,
+                                        FOLLOW_MESSAGE
+                                    )
+                                )
                             }
                             else {
                                 followers -= currentUid
@@ -159,6 +176,27 @@ class FollowFollowingUsersFragment: Fragment() {
                     }
 
                     is Resource.Empty -> Unit
+                }
+            }
+        }
+    }
+
+    private fun collectAddNotificationState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.addNotificationState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        viewModel.sendPushNotification(
+                            PushNotification(
+                                NotificationData(
+                                    currentUid,
+                                    FOLLOW_MESSAGE
+                                ), "/topics/$senderUid"
+                            )
+                        )
+                    }
+                    else -> Unit
                 }
             }
         }

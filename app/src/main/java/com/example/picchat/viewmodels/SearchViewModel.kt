@@ -2,6 +2,8 @@ package com.example.picchat.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.User
 import com.example.picchat.other.Event
 import com.example.picchat.other.Resource
@@ -47,6 +49,21 @@ class SearchViewModel
                 _toggleFollowState.value = Event(it)
             }
         }
+    }
+
+
+    private val _addNotificationState = MutableStateFlow<Event<Resource<String?>>>(Event(Resource.Loading()))
+    val addNotificationState: StateFlow<Event<Resource<String?>>> = _addNotificationState
+
+    fun addNotification(notification: Notification) {
+        viewModelScope.launch {
+            val result = repository.addNotification(notification)
+            _addNotificationState.value = Event(result)
+        }
+    }
+
+    fun sendPushNotification(pushNotification: PushNotification) = viewModelScope.launch {
+        repository.sendPushNotification(pushNotification)
     }
 
 

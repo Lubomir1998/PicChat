@@ -15,8 +15,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.R
 import com.example.picchat.adapters.SearchUserAdapter
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.User
 import com.example.picchat.databinding.SearchFragmentBinding
+import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.FOLLOW_MESSAGE
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -40,6 +45,8 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
 
     @Inject
     lateinit var searchAdapter: SearchUserAdapter
+
+    private var uid = "uid"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = SearchFragmentBinding.inflate(inflater, container, false)
@@ -81,6 +88,7 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
 
         collectFollowStateData()
 
+        collectAddNotificationState()
 
 
     }
@@ -121,14 +129,23 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
                 when (val result = it.peekContent()) {
                     is Resource.Success -> {
                         val user = searchAdapter.currentList[position]
+                        uid = user.uid
 
                         val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
 
                         user.apply {
+
                             isFollowing = result.data!!
 
                             if(isFollowing) {
                                 followers += currentUid
+                                viewModel.addNotification(
+                                    Notification(
+                                        currentUid,
+                                        uid,
+                                        FOLLOW_MESSAGE
+                                    )
+                                )
                             }
                             else {
                                 followers -= currentUid
@@ -155,6 +172,23 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
             }
         }
     }
+
+
+
+    private fun collectAddNotificationState() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.addNotificationState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, FOLLOW_MESSAGE), "/topics/$uid"))
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
+
 
     private fun setupRecyclerView() {
         binding.recyclerViewSearch.apply {

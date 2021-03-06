@@ -91,6 +91,9 @@
             android:name="uid"
             android:defaultValue="qqqqqq"
             app:argType="string" />
+        <argument
+            android:name="postImgUrl"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/profilePostsFragment"
@@ -127,5 +130,13 @@
         <action
             android:id="@+id/action_followFollowingUsersFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.example.picchat.ui.main.NotificationsFragment"
+        android:label="Activity" >
+        <action
+            android:id="@+id/action_notificationsFragment_to_othersProfileFragment"
+            app:destination="@id/othersProfileFragment" />
     </fragment>
 </navigation>

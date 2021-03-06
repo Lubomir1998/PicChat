@@ -17,7 +17,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.R
 import com.example.picchat.adapters.CommentAdapter
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
+import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.CommentsFragmentBinding
+import com.example.picchat.other.Constants.COMMENT_MESSAGE
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -68,6 +72,10 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
             viewModel.comment(binding.etComment.text.toString(), postId)
         }
 
+        commentsAdapter.setOnDeleteBtnClickListener {
+            viewModel.deleteComment(it)
+        }
+
         commentsAdapter.setOnUsernameClickListener {
             if(currentUid != it) {
                 findNavController().navigate(
@@ -86,7 +94,104 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
 
         viewModel.getComments(postId)
 
+        collectComments()
 
+
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.addCommentState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        binding.btnPostComment.isEnabled = false
+                        binding.commentsProgressBar.isVisible = false
+                        viewModel.getComments(postId)
+                        binding.etComment.text.clear()
+                        viewModel.addNotification(
+                            Notification(
+                                currentUid,
+                                args.uid,
+                                COMMENT_MESSAGE,
+                                postId,
+                                args.postImgUrl
+                            )
+                        )
+                    }
+
+                    is Resource.Error -> {
+                        binding.commentsProgressBar.isVisible = false
+                        binding.btnPostComment.isEnabled = true
+                        it.getContentIfNotHandled()?.let {
+                            it.message?.let { message ->
+                                snackbar(message)
+                            }
+                        }
+                    }
+
+                    is Resource.Loading -> {
+                        binding.commentsProgressBar.isVisible = true
+                        binding.btnPostComment.isEnabled = false
+                    }
+
+                    is Resource.Empty -> Unit
+                }
+            }
+
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.deleteCommentState.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        binding.commentsProgressBar.isVisible = false
+                        viewModel.getComments(postId)
+                    }
+
+                    is Resource.Error -> {
+                        binding.commentsProgressBar.isVisible = false
+                        it.getContentIfNotHandled()?.let {
+                            it.message?.let { message ->
+                                snackbar(message)
+                            }
+                        }
+                    }
+
+                    is Resource.Loading -> {
+                        binding.commentsProgressBar.isVisible = true
+                    }
+
+                    is Resource.Empty -> Unit
+                }
+
+            }
+        }
+
+
+        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if(args.sender == "post") {
+//                    val navOptions = NavOptions.Builder()
+//                            .setPopUpTo(R.id.commentsFragment, true)
+//                            .build()
+
+                    findNavController().navigate(
+                            CommentsFragmentDirections.launchProfilePostsFragment(
+                                    args.uid,
+                                    args.position
+                            )
+                    )
+                }
+                else {
+                    findNavController().popBackStack()
+                }
+            }
+        })
+
+        collectAddNotificationState()
+
+
+    }
+
+    private fun collectComments() {
         lifecycleScope.launchWhenStarted {
             viewModel.comments.collect {
                 when(val result = it.peekContent()) {
@@ -115,62 +220,20 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
             }
 
         }
+    }
 
+    private fun collectAddNotificationState() {
         lifecycleScope.launchWhenStarted {
-            viewModel.addCommentState.collect {
+            viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        binding.btnPostComment.isEnabled = false
-                        binding.commentsProgressBar.isVisible = false
-                        viewModel.getComments(postId)
-                        binding.etComment.text.clear()
+                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, COMMENT_MESSAGE), "/topics/${args.uid}"))
                     }
-
-                    is Resource.Error -> {
-                        binding.commentsProgressBar.isVisible = false
-                        binding.btnPostComment.isEnabled = true
-                        it.getContentIfNotHandled()?.let {
-                            it.message?.let { message ->
-                                snackbar(message)
-                            }
-                        }
-                    }
-
-                    is Resource.Loading -> {
-                        binding.commentsProgressBar.isVisible = true
-                        binding.btnPostComment.isEnabled = false
-                    }
-
-                    is Resource.Empty -> Unit
+                    else -> Unit
                 }
             }
         }
-
-
-        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if(args.sender == "post") {
-                    val navOptions = NavOptions.Builder()
-                            .setPopUpTo(R.id.commentsFragment, true)
-                            .build()
-
-                    findNavController().navigate(
-                            CommentsFragmentDirections.launchProfilePostsFragment(
-                                    args.uid,
-                                    args.position
-                            ),
-                            navOptions
-                    )
-                }
-                else {
-                    findNavController().popBackStack()
-                }
-            }
-        })
-
-
-
-
     }
 
     private fun setupRecyclerView() {
