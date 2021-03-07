@@ -8,8 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="lightBlue">#14B6FA</color>
-    <color name="backround">#FAFAFA</color>
-    <color name="text">#000000</color>
-    <color name="description">#605F5F</color>
-    <color name="selected">#000000</color>
+    <color name="backround">#000000</color>
+    <color name="text">#FAFAFA</color>
+    <color name="description">#FAFAFA</color>
+    <color name="selected">#FFFFFF</color>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.picchat.viewmodels
 
+import android.content.SharedPreferences
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +15,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel
-@Inject constructor(private val repository: MainRepository): ViewModel() {
-
-
+@Inject constructor(
+        private val repository: MainRepository,
+        private val sharedPrefs: SharedPreferences
+): ViewModel() {
 
     private val _updateProfileState = MutableStateFlow<Event<Resource<String>>>(Event(Resource.Empty()))
 
@@ -38,7 +40,13 @@ class EditProfileViewModel
     }
 
 
+    private val _isDarkTheme = MutableStateFlow(sharedPrefs.getBoolean("dark", false))
 
+    val isDarkTheme: StateFlow<Boolean> = _isDarkTheme
+
+    fun changeTheme(isNightMode: Boolean) {
+        _isDarkTheme.value = !isNightMode
+    }
 
 
     private val _imgUri: MutableStateFlow<Uri?> = MutableStateFlow(null)

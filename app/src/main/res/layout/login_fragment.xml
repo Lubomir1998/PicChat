@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/backround"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -10,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Pic Chart"
         android:textSize="60sp"
-        android:textColor="#5e5e5e"
+        android:textColor="@color/description"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/teextLayoutEmail"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,6 +63,7 @@
         android:layout_marginTop="24dp"
         android:text="Register a new account"
         android:textSize="20sp"
+        android:textColor="@color/description"
         app:layout_constraintEnd_toEndOf="@+id/tilPassword"
         app:layout_constraintStart_toStartOf="@+id/tilPassword"
         app:layout_constraintTop_toBottomOf="@+id/btnLogin" />

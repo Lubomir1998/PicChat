@@ -1,5 +1,7 @@
 package com.example.picchat.adapters
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.text.SpannableStringBuilder
@@ -8,17 +10,23 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
+import com.example.picchat.R
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.NotificationItemPostBinding
 import com.example.picchat.databinding.NotificationItemUserBinding
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class NotificationsAdapter
-@Inject constructor(private val glide: RequestManager): ListAdapter<Notification, RecyclerView.ViewHolder>(NotificationDiffCallback()) {
+@Inject constructor(
+        private val glide: RequestManager,
+        private val sharedPreferences: SharedPreferences
+): ListAdapter<Notification, RecyclerView.ViewHolder>(NotificationDiffCallback()) {
 
 
     private val USER = 0
@@ -71,6 +79,7 @@ class NotificationsAdapter
 
         val item = getItem(position)
 
+        val isDartTheme = sharedPreferences.getBoolean("dark", false)
 
         when(holder) {
             is NotificationPostViewHolder -> {
@@ -79,7 +88,7 @@ class NotificationsAdapter
 
                     val usernameBuilder = SpannableStringBuilder("${item.senderUsername}  ${item.message}")
 
-                    val usernameColorSpan = ForegroundColorSpan(Color.BLACK)
+                    val usernameColorSpan = ForegroundColorSpan(if (isDartTheme) Color.WHITE else Color.BLACK)
                     val usernameStyleSpan = StyleSpan(Typeface.BOLD)
 
                     usernameBuilder.apply {
@@ -114,7 +123,7 @@ class NotificationsAdapter
 
                     val usernameBuilder = SpannableStringBuilder("${item.senderUsername}  ${item.message}")
 
-                    val usernameColorSpan = ForegroundColorSpan(Color.BLACK)
+                    val usernameColorSpan = ForegroundColorSpan(if (isDartTheme) Color.WHITE else Color.BLACK)
                     val usernameStyleSpan = StyleSpan(Typeface.BOLD)
 
                     usernameBuilder.apply {

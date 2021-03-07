@@ -1,6 +1,8 @@
 package com.example.picchat.adapters
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import android.text.SpannableStringBuilder
@@ -11,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,12 +22,16 @@ import com.bumptech.glide.RequestManager
 import com.example.picchat.R
 import com.example.picchat.data.entities.Post
 import com.example.picchat.databinding.PostItemBinding
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 class PostAdapter
-@Inject constructor(private val glide: RequestManager): ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallBack()) {
+@Inject constructor(
+        private val glide: RequestManager,
+        private val sharedPreferences: SharedPreferences
+): ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallBack()) {
 
     class PostViewHolder(itemView: PostItemBinding) : RecyclerView.ViewHolder(itemView.root) {
         val postAuthorImg = itemView.postAuthorImg
@@ -49,6 +56,8 @@ class PostAdapter
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = getItem(position)
 
+        val isDartTheme = sharedPreferences.getBoolean("dark", false)
+
         holder.apply {
             glide.load(post.authorProfileImgUrl).into(postAuthorImg)
             postAuthorUsernameTv.text = post.authorUsername
@@ -70,7 +79,7 @@ class PostAdapter
                 if(it) {
                     val usernameBuilder = SpannableStringBuilder("${post.authorUsername}  ${post.description}")
 
-                    val usernameColorSpan = ForegroundColorSpan(Color.BLACK)
+                    val usernameColorSpan = ForegroundColorSpan(if (isDartTheme) Color.WHITE else Color.BLACK)
                     val usernameStyleSpan = StyleSpan(android.graphics.Typeface.BOLD)
 
                     usernameBuilder.apply {

@@ -49,14 +49,5 @@ class AuthRepository
     }
 
     suspend fun getUid(): String? = api.getUid()
-
-    suspend fun getUsername(uid: String): String {
-        return try {
-            val user = api.getUserById(uid) ?: throw Exception()
-            user.username
-        } catch (e: Exception) {
-            "Someone"
-        }
-    }
-
+    
 }

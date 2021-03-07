@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/backround"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -13,6 +14,8 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="12dp"
         android:text="post"
+        android:backgroundTint="@color/lightBlue"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -24,6 +27,7 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/comment_et_style"
         android:hint="Enter your comment..."
+        android:textColor="@color/description"
         app:layout_constraintBottom_toBottomOf="@+id/btnPostComment"
         app:layout_constraintEnd_toStartOf="@+id/btnPostComment"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="12dp"
-        android:background="#8e8e8e"
+        android:background="@color/description"
         app:layout_constraintBottom_toTopOf="@+id/btnPostComment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

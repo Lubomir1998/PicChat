@@ -6,6 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backround"
     android:layout_marginBottom="56dp">
 
     <androidx.core.widget.NestedScrollView
@@ -53,7 +54,7 @@
                 tools:text="209\nPosts"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textColor="@color/black"
+                android:textColor="@color/text"
                 app:layout_constraintBottom_toBottomOf="@+id/circleImageView"
                 app:layout_constraintEnd_toStartOf="@+id/followersTv"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -67,7 +68,7 @@
                 tools:text="200\nFollowers"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textColor="@color/black"
+                android:textColor="@color/text"
                 app:layout_constraintBottom_toBottomOf="@+id/circleImageView"
                 app:layout_constraintEnd_toStartOf="@+id/followingTv"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -81,7 +82,7 @@
                 tools:text="200\nFollowing"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:textColor="@color/black"
+                android:textColor="@color/text"
                 app:layout_constraintBottom_toBottomOf="@+id/circleImageView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -97,7 +98,7 @@
                 tools:text="Lubomir Iordanov"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"
+                android:textColor="@color/text"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/circleImageView" />
 
@@ -107,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="12dp"
-                android:textColor="#4e4e4e"
+                android:textColor="@color/description"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/bioGuideline"
                 app:layout_constraintStart_toStartOf="parent"

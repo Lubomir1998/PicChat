@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -162,8 +163,31 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
         }
 
 
+        binding.nightModeSwitch.setOnClickListener {
+            val isDarkTheme = sharedPrefs.getBoolean("dark", false)
+            viewModel.changeTheme(isDarkTheme)
+            sharedPrefs.edit().putBoolean("dark", !isDarkTheme).apply()
+        }
+
+        setTheme()
 
 
+
+    }
+
+    private fun setTheme() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.isDarkTheme.collect { isDarkTheme ->
+                if(isDarkTheme) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    binding.nightModeSwitch.isChecked = true
+                }
+                else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    binding.nightModeSwitch.isChecked = false
+                }
+            }
+        }
     }
 
     private fun logout() {

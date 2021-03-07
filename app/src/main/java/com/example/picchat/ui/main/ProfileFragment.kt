@@ -3,10 +3,12 @@ package com.example.picchat.ui.main
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -57,14 +59,15 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
         return profileBinding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("SetTextI18n", "ResourceAsColor")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         profileBinding.btnFollow.apply {
             text = "Edit profile"
-            setTextColor(Color.BLACK)
-            setBackgroundColor(Color.WHITE)
+            setTextColor(resources.getColor(R.color.text))
+            setBackgroundColor(resources.getColor(R.color.backround))
         }
 
 
