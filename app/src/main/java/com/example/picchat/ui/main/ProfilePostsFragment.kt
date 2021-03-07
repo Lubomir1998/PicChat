@@ -16,6 +16,7 @@ import com.example.picchat.data.NotificationData
 import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.HomeFragmentBinding
+import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Constants.NO_UID
@@ -178,8 +179,8 @@ class ProfilePostsFragment: Fragment() {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, LIKE_MESSAGE), "/topics/${args.uid}"))
+                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
+                        viewModel.sendPushNotification(PushNotification(NotificationData(username, LIKE_MESSAGE), "/topics/${args.uid}"))
                     }
                     else -> Unit
                 }

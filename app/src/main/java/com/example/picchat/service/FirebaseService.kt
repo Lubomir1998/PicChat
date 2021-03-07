@@ -12,15 +12,12 @@ import android.os.PowerManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.example.picchat.R
-import com.example.picchat.data.ApiService
 import com.example.picchat.other.Constants.CHANNEL_ID
-import com.example.picchat.other.Constants.NO_UID
+import com.example.picchat.repositories.MainRepository
 import com.example.picchat.ui.auth.AuthActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -29,14 +26,11 @@ import javax.inject.Inject
 class FirebaseService: FirebaseMessagingService() {
 
     @Inject
-    lateinit var api: ApiService
+    lateinit var repository: MainRepository
 
     @SuppressLint("InvalidWakeLockTag")
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-
-        var username = ""
-
 
         // wake the screen after receiving the notification
         val pm = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -65,23 +59,18 @@ class FirebaseService: FirebaseMessagingService() {
 
         val vibrateArray = longArrayOf(1000)
 
-        GlobalScope.launch {
-            val user = api.getUserById(message.data["title"] ?: NO_UID)
-            username = user!!.username
+        val notification = NotificationCompat.Builder(this@FirebaseService, CHANNEL_ID)
+            .setContentTitle("Pic Chat")
+            .setContentText("${message.data["title"]}${message.data["message"]}")
+            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setVibrate(vibrateArray)
+            .build()
+
+        notificationManager.notify(notificationID, notification)
 
 
-            val notification = NotificationCompat.Builder(this@FirebaseService, CHANNEL_ID)
-                .setContentTitle("Pic Chat")
-                .setContentText("$username${message.data["message"]}")
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .setVibrate(vibrateArray)
-                .build()
-
-            notificationManager.notify(notificationID, notification)
-
-        }
 
     }
 

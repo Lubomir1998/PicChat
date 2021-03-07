@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.picchat.adapters.NotificationsAdapter
+import com.example.picchat.data.NotificationData
+import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.NotificationsFragmentBinding
 import com.example.picchat.other.Constants
@@ -117,11 +119,19 @@ class NotificationsFragment: Fragment() {
                 when (val result = it.peekContent()) {
                     is Resource.Success -> {
                         val notification = notificationAdapter.currentList[position]
-                        uid = notification.senderUid
 
-                        val currentUid = sharedPrefs.getString(Constants.KEY_UID, Constants.NO_UID) ?: Constants.NO_UID
-
-
+                        notification.isFollowing = result.data!!
+                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
+                        if(notification.isFollowing) {
+                            viewModel.sendPushNotification(
+                                PushNotification(
+                                    NotificationData(
+                                        username,
+                                        Constants.FOLLOW_MESSAGE
+                                    ), "/topics/${notification.senderUid}"
+                                )
+                            )
+                        }
 
                         notificationAdapter.notifyItemChanged(position)
 

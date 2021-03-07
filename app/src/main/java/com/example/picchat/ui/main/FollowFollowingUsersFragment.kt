@@ -186,11 +186,11 @@ class FollowFollowingUsersFragment: Fragment() {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
                         viewModel.sendPushNotification(
                             PushNotification(
                                 NotificationData(
-                                    currentUid,
+                                    username,
                                     FOLLOW_MESSAGE
                                 ), "/topics/$senderUid"
                             )

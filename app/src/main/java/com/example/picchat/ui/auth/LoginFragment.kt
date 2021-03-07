@@ -17,6 +17,8 @@ import com.example.picchat.other.BasicAuthInterceptor
 import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.KEY_EMAIL
 import com.example.picchat.other.Constants.KEY_PASSWORD
+import com.example.picchat.other.Constants.KEY_UID
+import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.ui.main.MainActivity
@@ -92,14 +94,12 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
 
                         lifecycleScope.launchWhenStarted {
                             viewModel.uid.collect {
-                                sharedPrefs.edit()
-                                    .putString(Constants.KEY_UID, it)
-                                    .apply()
+                                sharedPrefs.edit().putString(KEY_UID, it).apply()
                             }
                         }
 
-                        Intent(requireContext(), MainActivity::class.java).also {
-                            startActivity(it)
+                        Intent(requireContext(), MainActivity::class.java).also { intent ->
+                            startActivity(intent)
                             requireActivity().finish()
                         }
 

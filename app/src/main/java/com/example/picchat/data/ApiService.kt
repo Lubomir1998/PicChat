@@ -20,6 +20,9 @@ interface ApiService {
     @POST("login")
     suspend fun login(@Body accountRequest: AccountRequest): Response<SimpleResponse>
 
+    @GET("/getUserByEmail/{email}")
+    suspend fun getUserByEmail(@Path("email") email: String): User?
+
     @GET("/getUid")
     suspend fun getUid(): String?
 

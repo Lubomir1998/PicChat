@@ -126,9 +126,9 @@ class NotificationsAdapter
                     notificationMessage.text = usernameBuilder
 
                     btnFollow.apply {
-                        setTextColor(if (item.isFollowing == true) Color.BLACK else Color.WHITE)
-                        setBackgroundColor(if (item.isFollowing == true) Color.WHITE else Color.parseColor("#14B6FA"))
-                        text = if (item.isFollowing == true) {
+                        setTextColor(if (item.isFollowing) Color.BLACK else Color.WHITE)
+                        setBackgroundColor(if (item.isFollowing) Color.WHITE else Color.parseColor("#14B6FA"))
+                        text = if (item.isFollowing) {
                             "Following"
                         }
                         else {

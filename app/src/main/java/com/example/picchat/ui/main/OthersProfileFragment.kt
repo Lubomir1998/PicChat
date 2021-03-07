@@ -14,6 +14,7 @@ import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.User
 import com.example.picchat.other.Constants.FOLLOW_MESSAGE
 import com.example.picchat.other.Constants.KEY_UID
+import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
@@ -133,8 +134,16 @@ class OthersProfileFragment: ProfileFragment() {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, FOLLOW_MESSAGE), "/topics/${args.uid}"))
+                        val username = sharedPrefs.getString(KEY_USERNAME, "Someone") ?: "Someone"
+
+                        viewModel.sendPushNotification(
+                            PushNotification(
+                                NotificationData(
+                                    username,
+                                    FOLLOW_MESSAGE
+                                ), "/topics/${args.uid}"
+                            )
+                        )
                     }
                     else -> Unit
                 }

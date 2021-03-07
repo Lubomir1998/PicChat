@@ -180,8 +180,8 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-                        viewModel.sendPushNotification(PushNotification(NotificationData(currentUid, FOLLOW_MESSAGE), "/topics/$uid"))
+                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
+                        viewModel.sendPushNotification(PushNotification(NotificationData(username, FOLLOW_MESSAGE), "/topics/$uid"))
                     }
                     else -> Unit
                 }

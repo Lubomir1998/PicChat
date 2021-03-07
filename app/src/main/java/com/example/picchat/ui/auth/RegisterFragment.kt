@@ -1,5 +1,6 @@
 package com.example.picchat.ui.auth
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,17 +12,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.picchat.R
 import com.example.picchat.databinding.RegisterFragmentBinding
+import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.viewmodels.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RegisterFragment: Fragment(R.layout.register_fragment) {
 
     private lateinit var binding: RegisterFragmentBinding
     private val viewModel: AuthViewModel by viewModels()
+
+    @Inject
+    lateinit var sharedPrefs: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +57,8 @@ class RegisterFragment: Fragment(R.layout.register_fragment) {
             val username = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
             val confirmPassword = binding.etRepeatPassword.text.toString().trim()
+
+            sharedPrefs.edit().putString(KEY_USERNAME, username).apply()
 
             viewModel.register(username, email, password, confirmPassword)
         }

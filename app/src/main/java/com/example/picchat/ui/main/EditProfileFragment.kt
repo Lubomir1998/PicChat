@@ -20,6 +20,7 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.RequestManager
 import com.example.picchat.R
 import com.example.picchat.databinding.EditProfileFragmentBinding
+import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.KEY_EMAIL
 import com.example.picchat.other.Constants.KEY_PASSWORD
 import com.example.picchat.other.Constants.KEY_UID
@@ -43,6 +44,8 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
     private lateinit var binding: EditProfileFragmentBinding
     private val viewModel: EditProfileViewModel by viewModels()
     private val args: EditProfileFragmentArgs by navArgs()
+
+    private var username = ""
 
     @Inject
     lateinit var glide: RequestManager
@@ -110,7 +113,7 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
         }
 
         binding.btnDone.setOnClickListener {
-            val username = binding.etLoginEmail.text.toString()
+            username = binding.etLoginEmail.text.toString()
             val bio = binding.etBio.text.toString()
 
             viewModel.updateProfile(currentUri, username, bio)
@@ -126,6 +129,7 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
                 when(it.peekContent()) {
                     is Resource.Success -> {
                         binding.updateProfileProgressBar.isVisible = false
+                        sharedPrefs.edit().putString(Constants.KEY_USERNAME, username).apply()
                         findNavController().popBackStack()
                     }
 
