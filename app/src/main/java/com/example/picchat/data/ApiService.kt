@@ -74,4 +74,7 @@ interface ApiService {
     @POST("/deleteComment")
     suspend fun deleteComment(@Body comment: Comment): Response<SimpleResponse>
 
+    @POST("/deletePost")
+    suspend fun deletePost(@Body post: Post): Response<SimpleResponse>
+
 }

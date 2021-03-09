@@ -80,7 +80,7 @@ class SearchFragment: Fragment(R.layout.search_fragment) {
 
         searchAdapter.setOnUserClicked {
             findNavController().navigate(
-                    SearchFragmentDirections.actionSearchFragmentToOthersProfileFragment(it.uid)
+                    SearchFragmentDirections.launchOthersProfileFragment(it.uid)
             )
         }
 

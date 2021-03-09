@@ -80,7 +80,7 @@ class FollowFollowingUsersFragment: Fragment() {
             }
             else {
                 findNavController().navigate(
-                        FollowFollowingUsersFragmentDirections.actionFollowFollowingUsersFragmentToOthersProfileFragment(it.uid)
+                        FollowFollowingUsersFragmentDirections.launchOthersProfileFragment(it.uid)
                 )
             }
         }

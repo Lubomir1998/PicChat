@@ -80,7 +80,7 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
         commentsAdapter.setOnUsernameClickListener {
             if(currentUid != it) {
                 findNavController().navigate(
-                        CommentsFragmentDirections.actionCommentsFragmentToOthersProfileFragment(
+                        CommentsFragmentDirections.launchOthersProfileFragment(
                                 it
                         )
                 )

@@ -312,6 +312,19 @@ class MainRepository
         }
     }
 
+    suspend fun deletePost(post: Post) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.deletePost(post)
+            if(response.isSuccessful && response.body()!!.isSuccessful) {
+                storage.getReferenceFromUrl(post.imgUrl).delete().await()
+                Resource.Success(response.body()?.message)
+            }
+            else {
+                Resource.Error("Error")
+            }
+        }
+    }
+
     suspend fun getActivity() = withContext(Dispatchers.IO) {
         safeCall {
             val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: throw Exception()

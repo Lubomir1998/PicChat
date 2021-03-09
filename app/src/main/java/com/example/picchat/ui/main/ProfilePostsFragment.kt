@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -22,88 +23,44 @@ import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
+import com.example.picchat.viewmodels.BasePostViewModel
+import com.example.picchat.viewmodels.HomeViewModel
 import com.example.picchat.viewmodels.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ProfilePostsFragment: Fragment() {
+class ProfilePostsFragment: BasePostFragment() {
 
-    private lateinit var binding: HomeFragmentBinding
-
-    private val viewModel: ProfileViewModel by viewModels()
 
     private val args: ProfilePostsFragmentArgs by navArgs()
 
-    @Inject
-    lateinit var postAdapter: PostAdapter
+    override var uid: String = ""
+        get() = args.uid
 
-    @Inject
-    lateinit var sharedPrefs: SharedPreferences
+    override val position: Int
+        get() = args.position
+    override val viewModel: BasePostViewModel
+        get() {
+            val vm: ProfileViewModel by viewModels()
+            return vm
+        }
 
-    private var index = 0
-
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = HomeFragmentBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
 
-        val uid = args.uid
-        val position = args.position
 
-        setUpRecyclerView()
-
-        viewModel.getPosts(uid)
+        getPosts(uid)
 
         binding.swipeRefreshHome.setOnRefreshListener {
             viewModel.getPosts(uid)
             binding.swipeRefreshHome.isRefreshing = false
         }
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.posts.collect {
-                when(val result = it.peekContent()) {
-                    is Resource.Success -> {
-                        val posts = result.data!!.reversed()
-                        postAdapter.submitList(posts)
-                        binding.recyclerViewHome.scrollToPosition(position)
-                    }
-                }
-            }
-        }
-
-        postAdapter.setOnLikeBtnClickListener { post, i ->
-            index = i
-            viewModel.toggleLike(post.id)
-        }
-
-        postAdapter.setOnCommentTvClickListener { post, pos ->
-            findNavController().navigate(
-                    ProfilePostsFragmentDirections.launchCommentsFragment(
-                            post.id,
-                            pos,
-                            "post",
-                            uid,
-                        post.imgUrl
-                    )
-            )
-        }
-
-        postAdapter.setOnLikesClickListener {
-            findNavController().navigate(
-                    ProfilePostsFragmentDirections.launchUserResultsFragment(
-                            it.id,
-                            "Likes"
-                    )
-            )
-        }
 
         postAdapter.setOnUsernameClickListener { id, pos ->
             if(currentUid == id) {
@@ -113,59 +70,42 @@ class ProfilePostsFragment: Fragment() {
             }
             else {
                 findNavController().navigate(
-                        ProfilePostsFragmentDirections.actionProfilePostsFragmentToOthersProfileFragment(id)
+                        ProfilePostsFragmentDirections.launchOthersProfileFragment(id)
                 )
             }
         }
 
-        collectIsLikedState()
+        postAdapter.setOnDeletePostClickListener { post ->
+            DeletePostDialog().apply {
+                setPositiveListener {
+                    viewModel.deletePost(post)
+                }
+            }.show(childFragmentManager, null)
+        }
 
-        collectAddNotificationState()
+
+
+        collectDeletePostState()
 
     }
 
-    private fun collectIsLikedState() {
+
+    private fun collectDeletePostState() {
         lifecycleScope.launchWhenStarted {
-            viewModel.isLikedState.collect {
-                when(val result = it.peekContent()) {
+            viewModel.deletePostState.collect {
+                when(it.peekContent()) {
                     is Resource.Success -> {
-                        val post = postAdapter.currentList[index]
-
-                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-
-                        post.apply {
-                            isLiking = false
-                            isLiked = result.data!!
-                            if(isLiked) {
-                                likes += currentUid
-                                viewModel.addNotification(
-                                    Notification(
-                                        currentUid,
-                                        authorUid,
-                                        LIKE_MESSAGE,
-                                        id,
-                                        imgUrl
-                                    )
-                                )
-                            }
-                            else {
-                                likes -= currentUid
-                            }
-                        }
-
-                        postAdapter.notifyItemChanged(index)
-
+                        binding.allPostsProgressBar.isVisible = false
+                        viewModel.getPosts(args.uid)
                     }
 
                     is Resource.Error -> {
-                        val post = postAdapter.currentList[index]
-                        post.isLiking = false
+                        binding.allPostsProgressBar.isVisible = false
                         snackbar(it.getContentIfNotHandled()?.message ?: "Something went wrong")
                     }
 
                     is Resource.Loading -> {
-                        val post = postAdapter.currentList[index]
-                        post.isLiking = true
+                        binding.allPostsProgressBar.isVisible = true
                     }
 
                     is Resource.Empty -> Unit
@@ -174,28 +114,11 @@ class ProfilePostsFragment: Fragment() {
         }
     }
 
-    private fun collectAddNotificationState() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.addNotificationState.collect {
-                when(it.peekContent()) {
-                    is Resource.Success -> {
-                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
-                        viewModel.sendPushNotification(PushNotification(NotificationData(username, LIKE_MESSAGE), "/topics/${args.uid}"))
-                    }
-                    else -> Unit
-                }
-            }
-        }
+
+    override fun getPosts(uid: String) {
+        viewModel.getPosts(uid)
     }
 
-    private fun setUpRecyclerView() {
-        binding.recyclerViewHome.apply {
-            adapter = postAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-            animation = null
-            setHasFixedSize(true)
-        }
-    }
 
 
 }

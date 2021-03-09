@@ -22,42 +22,33 @@ import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
+import com.example.picchat.viewmodels.BasePostViewModel
 import com.example.picchat.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment: Fragment() {
+class HomeFragment: BasePostFragment() {
 
-    private lateinit var binding: HomeFragmentBinding
+    override val position: Int
+        get() = 0
+    override var uid: String = ""
+        get() = "uid"
+    override val viewModel: BasePostViewModel
+        get() {
+            val vm: HomeViewModel by viewModels()
+            return vm
+        }
 
-    private val viewModel: HomeViewModel by viewModels()
 
-    private var position = 0
-
-    private var uid = "uid"
-
-    @Inject
-    lateinit var postAdapter: PostAdapter
-
-    @Inject
-    lateinit var sharedPrefs: SharedPreferences
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = HomeFragmentBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setUpRecyclerView()
-        viewModel.getPosts()
+        getPosts()
+
+
 
         binding.swipeRefreshHome.setOnRefreshListener {
             viewModel.getPosts()
@@ -67,144 +58,20 @@ class HomeFragment: Fragment() {
 
         postAdapter.setOnUsernameClickListener { uid, _ ->
             findNavController().navigate(
-                    HomeFragmentDirections.actionHomeFragmentToOthersProfileFragment(uid)
+                    HomeFragmentDirections.launchOthersProfileFragment(uid)
             )
         }
 
-        postAdapter.setOnCommentTvClickListener { post, _ ->
-            findNavController().navigate(
-                    HomeFragmentDirections.launchCommentsFragment(post.id, uid = post.authorUid, postImgUrl = post.imgUrl)
-            )
-        }
 
-        postAdapter.setOnLikeBtnClickListener { post, index ->
-            position = index
-            viewModel.toggleLike(post.id)
-        }
 
-        postAdapter.setOnLikesClickListener {
-            findNavController().navigate(
-                    HomeFragmentDirections.launchUserResultsFragment(
-                            it.id,
-                            "Likes"
-                    )
-            )
-        }
-
-        collectHomePosts()
-        collectIsLikedState()
-
-        collectAddNotificationState()
 
 
     }
 
-
-    private fun collectIsLikedState() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.isLikedState.collect {
-                when(val result = it.peekContent()) {
-                    is Resource.Success -> {
-                        val post = postAdapter.currentList[position]
-
-                        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-
-                        post.apply {
-                            uid = authorUid
-                            isLiking = false
-                            isLiked = result.data!!
-                            if(isLiked) {
-                                likes += currentUid
-                                viewModel.addNotification(
-                                    Notification(
-                                        currentUid,
-                                        authorUid,
-                                        LIKE_MESSAGE,
-                                        id,
-                                        imgUrl
-                                    )
-                                )
-                            }
-                            else {
-                                likes -= currentUid
-                            }
-                        }
-
-                        postAdapter.notifyItemChanged(position)
-
-                    }
-
-                    is Resource.Error -> {
-                        val post = postAdapter.currentList[position]
-                        post.isLiking = false
-                        snackbar(it.getContentIfNotHandled()?.message ?: "Something went wrong")
-                    }
-
-                    is Resource.Loading -> {
-                        val post = postAdapter.currentList[position]
-                        post.isLiking = true
-                    }
-
-                    is Resource.Empty -> Unit
-                }
-            }
-        }
+    override fun getPosts(uid: String) {
+        viewModel.getPosts()
     }
 
-
-    private fun collectAddNotificationState() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.addNotificationState.collect {
-                when(it.peekContent()) {
-                    is Resource.Success -> {
-                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
-                        viewModel.sendPushNotification(PushNotification(NotificationData(username, LIKE_MESSAGE), "/topics/$uid"))
-                    }
-                    else -> Unit
-                }
-            }
-        }
-    }
-
-    private fun collectHomePosts() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.posts.collect {
-                when(val result = it.peekContent()) {
-                    is Resource.Success -> {
-                        binding.allPostsProgressBar.isVisible = false
-
-                        val posts = result.data!!.reversed()
-
-                        postAdapter.submitList(posts)
-
-                    }
-
-                    is Resource.Error -> {
-                        binding.allPostsProgressBar.isVisible = false
-                        it.getContentIfNotHandled()?.let { error ->
-                            error.message?.let { message ->
-                                snackbar(message)
-                            }
-
-                        }
-                    }
-
-                    is Resource.Loading -> { binding.allPostsProgressBar.isVisible = true }
-
-                    is Resource.Empty -> Unit
-                }
-            }
-        }
-    }
-
-    private fun setUpRecyclerView() {
-        binding.recyclerViewHome.apply {
-            adapter = postAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-            animation = null
-            setHasFixedSize(true)
-        }
-    }
 
 
 

@@ -10,6 +10,7 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -22,6 +23,7 @@ import com.bumptech.glide.RequestManager
 import com.example.picchat.R
 import com.example.picchat.data.entities.Post
 import com.example.picchat.databinding.PostItemBinding
+import com.example.picchat.other.Constants
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,6 +45,7 @@ class PostAdapter
         val postDescriptionTv = itemView.postDescriptionTv
         val postCommentsTv = itemView.postCommentsTv
         val dateTv = itemView.postDateTv
+        val deletePostImg = itemView.deleteImgBtn
     }
 
 
@@ -57,11 +60,19 @@ class PostAdapter
         val post = getItem(position)
 
         val isDartTheme = sharedPreferences.getBoolean("dark", false)
+        val currentUid = sharedPreferences.getString(Constants.KEY_UID, Constants.NO_UID) ?: Constants.NO_UID
 
         holder.apply {
             glide.load(post.authorProfileImgUrl).into(postAuthorImg)
             postAuthorUsernameTv.text = post.authorUsername
             glide.load(post.imgUrl).into(postImg)
+
+            if(currentUid == post.authorUid) {
+                deletePostImg.visibility = View.VISIBLE
+            }
+            else {
+                deletePostImg.visibility = View.GONE
+            }
 
             postLikesTv.text = when {
                 post.likes.isEmpty() -> {
@@ -136,6 +147,12 @@ class PostAdapter
                 if(!post.isLiking) onLikeBtnClickListener?.let { it(post, position) }
             }
 
+            deletePostImg.setOnClickListener {
+                onDeletePostClickListener?.let {
+                    it(post)
+                }
+            }
+
         }
 
     }
@@ -168,6 +185,13 @@ class PostAdapter
 
     fun setOnLikeBtnClickListener(listener: (Post, Int) -> Unit) {
         onLikeBtnClickListener = listener
+    }
+
+
+    private var onDeletePostClickListener: ((Post) -> Unit)? = null
+
+    fun setOnDeletePostClickListener(listener: (Post) -> Unit) {
+        onDeletePostClickListener = listener
     }
 
 

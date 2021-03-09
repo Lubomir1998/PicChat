@@ -63,7 +63,7 @@ class NotificationsFragment: Fragment() {
 
         notificationAdapter.setOnProfileImgClickListener {
             findNavController().navigate(
-                NotificationsFragmentDirections.actionNotificationsFragmentToOthersProfileFragment(it)
+                NotificationsFragmentDirections.launchOthersProfileFragment(it)
             )
         }
 
