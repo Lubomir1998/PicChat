@@ -138,6 +138,32 @@ class MainRepository
         }
     }
 
+    suspend fun getPostById(postId: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.getPostById(postId)
+
+            if(response.isSuccessful) {
+                val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+
+                val post = response.body()
+                post?.let {
+                    val postAuthor = getUser(it.authorUid).data ?: throw Exception()
+
+                    it.apply {
+                        authorUsername = postAuthor.username
+                        authorProfileImgUrl = postAuthor.profileImgUrl
+                        isLiked = currentUid in likes
+                    }
+
+                    Resource.Success(listOf(it))
+                } ?: Resource.Error("Something went wrong")
+            }
+            else {
+                Resource.Error("Something went wrong")
+            }
+        }
+    }
+
     private suspend fun getPost(postId: String): Post? {
         val response = api.getPostById(postId)
 

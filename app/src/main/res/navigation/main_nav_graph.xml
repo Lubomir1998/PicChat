@@ -122,5 +122,20 @@
     <fragment
         android:id="@+id/notificationsFragment"
         android:name="com.example.picchat.ui.main.NotificationsFragment"
-        android:label="Activity" />
+        android:label="Activity" >
+        <action
+            android:id="@+id/action_notificationsFragment_to_postItemFragment"
+            app:destination="@id/postItemFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/postItemFragment"
+        android:name="com.example.picchat.ui.main.PostItemFragment"
+        android:label="Photo">
+        <argument
+            android:name="postId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_postItemFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
 </navigation>

@@ -68,7 +68,9 @@ class NotificationsFragment: Fragment() {
         }
 
         notificationAdapter.setOnPostClickListener { postId ->
-            // open new fragment with layout-post_item
+            findNavController().navigate(
+                    NotificationsFragmentDirections.actionNotificationsFragmentToPostItemFragment(postId)
+            )
         }
 
         notificationAdapter.setOnBtnFollowClickListener { uid, pos ->
