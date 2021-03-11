@@ -14,11 +14,10 @@ import androidx.navigation.fragment.findNavController
 import com.example.picchat.R
 import com.example.picchat.databinding.LoginFragmentBinding
 import com.example.picchat.other.BasicAuthInterceptor
-import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.KEY_EMAIL
 import com.example.picchat.other.Constants.KEY_PASSWORD
+import com.example.picchat.other.Constants.KEY_TOKEN
 import com.example.picchat.other.Constants.KEY_UID
-import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.ui.main.MainActivity
@@ -68,11 +67,12 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
         binding.btnLogin.setOnClickListener {
             val email = binding.etLoginEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
+            val token = sharedPrefs.getString(KEY_TOKEN, "empty") ?: "empty"
 
             currentEmail = email
             currentPassword = password
 
-            viewModel.login(email, password)
+            viewModel.login(email, password, token)
         }
 
 

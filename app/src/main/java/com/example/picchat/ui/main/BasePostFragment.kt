@@ -16,6 +16,8 @@ import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.HomeFragmentBinding
 import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.KEY_USERNAME
+import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.viewmodels.BasePostViewModel
@@ -125,7 +127,7 @@ abstract class BasePostFragment(): Fragment() {
                         val currentUid = sharedPrefs.getString(Constants.KEY_UID, Constants.NO_UID) ?: Constants.NO_UID
 
                         post.apply {
-                            uid = id
+                            uid = authorUid
                             isLiking = false
                             isLiked = result.data!!
                             if(isLiked) {
@@ -134,7 +136,7 @@ abstract class BasePostFragment(): Fragment() {
                                         Notification(
                                                 currentUid,
                                                 authorUid,
-                                                Constants.LIKE_MESSAGE,
+                                                LIKE_MESSAGE,
                                                 id,
                                                 imgUrl
                                         )
@@ -171,8 +173,26 @@ abstract class BasePostFragment(): Fragment() {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
-                        viewModel.sendPushNotification(PushNotification(NotificationData(username, Constants.LIKE_MESSAGE), "/topics/$uid"))
+
+                        viewModel.getTokens(uid)
+
+                        viewModel.tokensState.collect{
+                            when(it) {
+                                is Resource.Success -> {
+                                    val username = sharedPrefs.getString(KEY_USERNAME, "Someone") ?: "Someone"
+                                    val tokens = it.data!!
+
+                                    tokens.forEach { token ->
+                                        viewModel.sendPushNotification(PushNotification(NotificationData(username, LIKE_MESSAGE), token))
+                                    }
+
+                                }
+
+                                else -> Unit
+                            }
+                        }
+
+
                     }
                     else -> Unit
                 }

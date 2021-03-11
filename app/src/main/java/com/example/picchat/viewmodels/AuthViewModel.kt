@@ -46,7 +46,7 @@ class AuthViewModel
 
     val loginState: StateFlow<Event<Resource<String?>>> = _loginState
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, token: String) {
         if(email.isEmpty() || password.isEmpty()) {
             _loginState.value = Event(Resource.Error("Empty fields"))
             return
@@ -55,7 +55,7 @@ class AuthViewModel
         _registerState.value = Event(Resource.Loading())
 
         viewModelScope.launch {
-            val result = repository.login(email, password)
+            val result = repository.login(email, password, token)
             _loginState.value = Event(result)
         }
 

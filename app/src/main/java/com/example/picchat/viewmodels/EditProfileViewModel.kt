@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.picchat.other.Event
 import com.example.picchat.other.Resource
+import com.example.picchat.repositories.AuthRepository
 import com.example.picchat.repositories.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,6 +55,17 @@ class EditProfileViewModel
 
     fun setImgUri(uri: Uri) {
         _imgUri.value = uri
+    }
+
+
+    private val _removeTokenFlow = MutableStateFlow<Event<Resource<String?>>>(Event((Resource.Empty())))
+    val removeTokenFlow: StateFlow<Event<Resource<String?>>> = _removeTokenFlow
+
+    fun removeToken() {
+        viewModelScope.launch {
+            val result = repository.removeTokenForUser()
+            _removeTokenFlow.value = Event(result)
+        }
     }
 
 }

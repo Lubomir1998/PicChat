@@ -228,8 +228,24 @@ class CommentsFragment: Fragment(R.layout.comments_fragment) {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
-                        viewModel.sendPushNotification(PushNotification(NotificationData(username, COMMENT_MESSAGE), "/topics/${args.uid}"))
+                        viewModel.getTokens(args.uid)
+
+                        viewModel.tokensState.collect{
+                            when(it) {
+                                is Resource.Success -> {
+                                    val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
+                                    val tokens = it.data!!
+
+                                    tokens.forEach { token ->
+                                        viewModel.sendPushNotification(PushNotification(NotificationData(username, COMMENT_MESSAGE), token))
+                                    }
+
+                                }
+
+                                else -> Unit
+                            }
+                        }
+
                     }
                     else -> Unit
                 }

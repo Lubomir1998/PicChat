@@ -63,6 +63,15 @@ class NotificationViewModel
         repository.sendPushNotification(pushNotification)
     }
 
+    private val _tokensState = MutableStateFlow<Resource<List<String>>>(Resource.Empty())
+    val tokensState: StateFlow<Resource<List<String>>> = _tokensState
+
+    fun getTokens(uid: String) {
+        viewModelScope.launch {
+            val tokens = repository.getTokens(uid)
+            _tokensState.value = tokens
+        }
+    }
 
 
 

@@ -10,9 +10,11 @@ import com.example.picchat.data.entities.Comment
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.Post
 import com.example.picchat.data.entities.User
+import com.example.picchat.data.requests.RemoveTokenRequest
 import com.example.picchat.data.requests.ToggleFollowRequest
 import com.example.picchat.data.requests.ToggleLikeRequest
 import com.example.picchat.data.requests.UpdateUserRequest
+import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.DEFAULT_PROFILE_IMG_URL
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
@@ -368,6 +370,32 @@ class MainRepository
 
             Resource.Success(notifications)
 
+        }
+    }
+
+    suspend fun removeTokenForUser() = withContext(Dispatchers.IO) {
+        safeCall {
+            val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
+            val token = sharedPrefs.getString(Constants.KEY_TOKEN, "empty") ?: "empty"
+            val response = api.removeToken(RemoveTokenRequest(currentUid, token))
+            if(response.isSuccessful && currentUid != NO_UID) {
+                Resource.Success(response.body()?.message)
+            }
+            else {
+                Resource.Error("")
+            }
+        }
+    }
+
+    suspend fun getTokens(uid: String) = withContext(Dispatchers.IO) {
+        safeCall {
+            val response = api.getTokens(uid)
+            if(response.isSuccessful && response.body() != null) {
+                Resource.Success(response.body()!!)
+            }
+            else {
+                Resource.Empty(null)
+            }
         }
     }
 

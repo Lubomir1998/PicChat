@@ -17,8 +17,14 @@ interface ApiService {
     @POST("/register/{username}")
     suspend fun register(@Body auth: Auth, @Path("username") username: String): Response<SimpleResponse>
 
-    @POST("login")
-    suspend fun login(@Body accountRequest: AccountRequest): Response<SimpleResponse>
+    @POST("/login/{token}")
+    suspend fun login(@Body accountRequest: AccountRequest, @Path("token") token: String): Response<SimpleResponse>
+
+    @POST("/removeToken")
+    suspend fun removeToken(@Body removeTokenRequest: RemoveTokenRequest): Response<SimpleResponse>
+
+    @GET("/getTokens/{uid}")
+    suspend fun getTokens(@Path("uid") id: String) : Response<List<String>>
 
     @GET("/getUserByEmail/{email}")
     suspend fun getUserByEmail(@Path("email") email: String): User?

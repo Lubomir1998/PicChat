@@ -3,8 +3,10 @@ package com.example.picchat.ui.main
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -12,6 +14,7 @@ import com.example.picchat.data.NotificationData
 import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.data.entities.User
+import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.FOLLOW_MESSAGE
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.KEY_USERNAME
@@ -37,6 +40,7 @@ class OthersProfileFragment: ProfileFragment() {
     override var currentUser: User? = null
 
 
+    @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -134,16 +138,23 @@ class OthersProfileFragment: ProfileFragment() {
             viewModel.addNotificationState.collect {
                 when(it.peekContent()) {
                     is Resource.Success -> {
-                        val username = sharedPrefs.getString(KEY_USERNAME, "Someone") ?: "Someone"
+                        viewModel.getTokens(uid)
 
-                        viewModel.sendPushNotification(
-                            PushNotification(
-                                NotificationData(
-                                    username,
-                                    FOLLOW_MESSAGE
-                                ), "/topics/${args.uid}"
-                            )
-                        )
+                        viewModel.tokensState.collect{
+                            when(it) {
+                                is Resource.Success -> {
+                                    val username = sharedPrefs.getString(KEY_USERNAME, "Someone") ?: "Someone"
+                                    val tokens = it.data!!
+
+                                    tokens.forEach { token ->
+                                        viewModel.sendPushNotification(PushNotification(NotificationData(username, FOLLOW_MESSAGE), token))
+                                    }
+
+                                }
+
+                                else -> Unit
+                            }
+                        }
                     }
                     else -> Unit
                 }

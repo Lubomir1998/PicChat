@@ -7,10 +7,7 @@ import com.example.picchat.data.requests.Auth
 import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Resource
 import com.example.picchat.other.safeCall
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -32,9 +29,9 @@ class AuthRepository
         }
     }
 
-    suspend fun login(email: String, password: String) = withContext(Dispatchers.IO) {
+    suspend fun login(email: String, password: String, token: String) = withContext(Dispatchers.IO) {
         safeCall {
-            val response = api.login(AccountRequest(email, password))
+            val response = api.login(AccountRequest(email, password), token)
             if(response.isSuccessful && response.body()!!.isSuccessful) {
                 val user = api.getUserByEmail(email)
                 user?.let {
@@ -49,5 +46,4 @@ class AuthRepository
     }
 
     suspend fun getUid(): String? = api.getUid()
-    
 }

@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import android.os.PowerManager
@@ -13,6 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.example.picchat.R
 import com.example.picchat.other.Constants.CHANNEL_ID
+import com.example.picchat.other.Constants.KEY_TOKEN
 import com.example.picchat.repositories.MainRepository
 import com.example.picchat.ui.auth.AuthActivity
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -27,6 +29,16 @@ class FirebaseService: FirebaseMessagingService() {
 
     @Inject
     lateinit var repository: MainRepository
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
+
+    override fun onNewToken(newToken: String) {
+        super.onNewToken(newToken)
+
+        sharedPreferences.edit().putString(KEY_TOKEN, newToken).apply()
+    }
 
     @SuppressLint("InvalidWakeLockTag")
     override fun onMessageReceived(message: RemoteMessage) {

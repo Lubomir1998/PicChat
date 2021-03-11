@@ -17,6 +17,8 @@ import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.NotificationsFragmentBinding
 import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.FOLLOW_MESSAGE
+import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Resource
 import com.example.picchat.other.snackbar
 import com.example.picchat.viewmodels.NotificationViewModel
@@ -123,16 +125,25 @@ class NotificationsFragment: Fragment() {
                         val notification = notificationAdapter.currentList[position]
 
                         notification.isFollowing = result.data!!
-                        val username = sharedPrefs.getString(Constants.KEY_USERNAME, "Someone") ?: "Someone"
+
                         if(notification.isFollowing) {
-                            viewModel.sendPushNotification(
-                                PushNotification(
-                                    NotificationData(
-                                        username,
-                                        Constants.FOLLOW_MESSAGE
-                                    ), "/topics/${notification.senderUid}"
-                                )
-                            )
+                            viewModel.getTokens(notification.senderUid)
+
+                            viewModel.tokensState.collect{
+                                when(it) {
+                                    is Resource.Success -> {
+                                        val username = sharedPrefs.getString(KEY_USERNAME, "Someone") ?: "Someone"
+                                        val tokens = it.data!!
+
+                                        tokens.forEach { token ->
+                                            viewModel.sendPushNotification(PushNotification(NotificationData(username, FOLLOW_MESSAGE), token))
+                                        }
+
+                                    }
+
+                                    else -> Unit
+                                }
+                            }
                         }
 
                         notificationAdapter.notifyItemChanged(position)

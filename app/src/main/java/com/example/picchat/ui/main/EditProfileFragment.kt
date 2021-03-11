@@ -24,6 +24,7 @@ import com.example.picchat.databinding.EditProfileFragmentBinding
 import com.example.picchat.other.Constants
 import com.example.picchat.other.Constants.KEY_EMAIL
 import com.example.picchat.other.Constants.KEY_PASSWORD
+import com.example.picchat.other.Constants.KEY_TOKEN
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_EMAIL
 import com.example.picchat.other.Constants.NO_PASSWORD
@@ -191,17 +192,29 @@ class EditProfileFragment: Fragment(R.layout.edit_profile_fragment) {
     }
 
     private fun logout() {
-        sharedPrefs.edit()
-                .putString(KEY_UID, NO_UID)
-                .putString(KEY_EMAIL, NO_EMAIL)
-                .putString(KEY_PASSWORD, NO_PASSWORD)
-                .apply()
+        viewModel.removeToken()
 
-        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-        FirebaseMessaging.getInstance().unsubscribeFromTopic("/topics/$currentUid")
+        lifecycleScope.launchWhenStarted {
+            viewModel.removeTokenFlow.collect {
+                when(it.peekContent()) {
+                    is Resource.Success -> {
+                        sharedPrefs.edit()
+                                .putString(KEY_UID, NO_UID)
+                                .putString(KEY_EMAIL, NO_EMAIL)
+                                .putString(KEY_PASSWORD, NO_PASSWORD)
+                                .apply()
 
-        startActivity(Intent(requireContext(), AuthActivity::class.java))
-        requireActivity().finish()
+                        startActivity(Intent(requireContext(), AuthActivity::class.java))
+                        requireActivity().finish()
+                    }
+
+                    is Resource.Error -> { snackbar("Something went wrong") }
+
+                    else -> Unit
+                }
+            }
+        }
+
     }
 
 }

@@ -31,10 +31,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val currentUid = sharedPrefs.getString(KEY_UID, NO_UID) ?: NO_UID
-
-        FirebaseMessaging.getInstance().subscribeToTopic("/topics/$currentUid")
-
         binding.bottomNav.setupWithNavController(supportFragmentManager.findFragmentById(R.id.main_nav_host_fragment)!!.findNavController())
 
         supportFragmentManager.findFragmentById(R.id.main_nav_host_fragment)!!.findNavController().addOnDestinationChangedListener { _, destination, _ ->
