@@ -33,6 +33,7 @@ class AuthActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.Theme_PicChat)
         setContentView(R.layout.activity_auth)
 
         if(sharedPrefs.getBoolean("dark", false)) {
