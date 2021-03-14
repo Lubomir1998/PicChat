@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.picchat.other.Constants.DEFAULT_POSITION_VALUE
+import com.example.picchat.other.Constants.KEY_POSITION
 import com.example.picchat.viewmodels.BasePostViewModel
 import com.example.picchat.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,7 +14,12 @@ import dagger.hilt.android.AndroidEntryPoint
 class HomeFragment: BasePostFragment() {
 
     override val position: Int
-        get() = 0
+        get() {
+            return if (sharedPrefs.getInt(KEY_POSITION, DEFAULT_POSITION_VALUE) == DEFAULT_POSITION_VALUE) {
+                0
+            }
+            else sharedPrefs.getInt(KEY_POSITION, DEFAULT_POSITION_VALUE)
+        }
     override var uid: String = ""
         get() = ""
     override val viewModel: BasePostViewModel
@@ -36,7 +43,7 @@ class HomeFragment: BasePostFragment() {
         }
 
 
-        postAdapter.setOnUsernameClickListener { uid, _ ->
+        postAdapter.setOnUsernameClickListener { uid, pos ->
             findNavController().navigate(
                     HomeFragmentDirections.launchOthersProfileFragment(uid)
             )

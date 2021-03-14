@@ -74,7 +74,7 @@ class FirebaseService: FirebaseMessagingService() {
         val notification = NotificationCompat.Builder(this@FirebaseService, CHANNEL_ID)
             .setContentTitle("Pic Chat")
             .setContentText("${message.data["title"]}${message.data["message"]}")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.logo)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setVibrate(vibrateArray)

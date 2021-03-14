@@ -20,6 +20,8 @@ import com.example.picchat.R
 import com.example.picchat.adapters.ProfilePostsAdapter
 import com.example.picchat.data.entities.User
 import com.example.picchat.databinding.ProfileFragmentBinding
+import com.example.picchat.other.Constants.DEFAULT_POSITION_VALUE
+import com.example.picchat.other.Constants.KEY_POSITION
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -104,6 +106,7 @@ open class ProfileFragment: Fragment(R.layout.profile_fragment) {
         }
 
         profilePostAdapter.setOnPostClickListener { authorUid, position ->
+            sharedPrefs.edit().putInt(KEY_POSITION, DEFAULT_POSITION_VALUE).apply()
             findNavController().navigate(
                     ProfileFragmentDirections.launchProfilePostsFragment(
                             authorUid,

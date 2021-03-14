@@ -10,8 +10,10 @@ import androidx.lifecycle.lifecycleScope
 import com.example.picchat.R
 import com.example.picchat.other.BasicAuthInterceptor
 import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.DEFAULT_POSITION_VALUE
 import com.example.picchat.other.Constants.KEY_EMAIL
 import com.example.picchat.other.Constants.KEY_PASSWORD
+import com.example.picchat.other.Constants.KEY_POSITION
 import com.example.picchat.other.Constants.NO_EMAIL
 import com.example.picchat.other.Constants.NO_PASSWORD
 import com.example.picchat.ui.main.MainActivity
@@ -64,5 +66,11 @@ class AuthActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        sharedPrefs.edit().putInt(KEY_POSITION, DEFAULT_POSITION_VALUE).apply()
     }
 }

@@ -11,9 +11,6 @@ import androidx.navigation.ui.NavigationUI.setupWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.picchat.R
 import com.example.picchat.databinding.ActivityMainBinding
-import com.example.picchat.other.Constants.KEY_UID
-import com.example.picchat.other.Constants.NO_UID
-import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

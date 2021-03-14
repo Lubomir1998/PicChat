@@ -7,6 +7,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.DEFAULT_POSITION_VALUE
+import com.example.picchat.other.Constants.KEY_POSITION
 import com.example.picchat.other.Constants.KEY_UID
 import com.example.picchat.other.Constants.NO_UID
 import com.example.picchat.other.Resource
@@ -26,7 +29,14 @@ class ProfilePostsFragment: BasePostFragment() {
         get() = args.uid
 
     override val position: Int
-        get() = args.position
+        get() {
+            return when {
+                sharedPrefs.getInt(KEY_POSITION, args.position) == DEFAULT_POSITION_VALUE -> {
+                    args.position
+                }
+                else -> sharedPrefs.getInt(KEY_POSITION, args.position)
+            }
+        }
     override val viewModel: BasePostViewModel
         get() {
             val vm: ProfileViewModel by viewModels()
@@ -49,6 +59,7 @@ class ProfilePostsFragment: BasePostFragment() {
 
 
         postAdapter.setOnUsernameClickListener { id, pos ->
+            sharedPrefs.edit().putInt(KEY_POSITION, pos).apply()
             if(currentUid == id) {
                 findNavController().navigate(
                         ProfilePostsFragmentDirections.actionProfilePostsFragmentToProfileFragment()

@@ -133,7 +133,7 @@ class PostAdapter
 
             postLikesTv.setOnClickListener {
                 onLikesClickListener?.let {
-                    it(post)
+                    it(post, position)
                 }
             }
 
@@ -174,9 +174,9 @@ class PostAdapter
 
 
 
-    private var onLikesClickListener: ((Post) -> Unit)? = null
+    private var onLikesClickListener: ((Post, Int) -> Unit)? = null
 
-    fun setOnLikesClickListener(listener: (Post) -> Unit) {
+    fun setOnLikesClickListener(listener: (Post, Int) -> Unit) {
         onLikesClickListener = listener
     }
 

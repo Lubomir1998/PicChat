@@ -16,6 +16,7 @@ import com.example.picchat.data.PushNotification
 import com.example.picchat.data.entities.Notification
 import com.example.picchat.databinding.HomeFragmentBinding
 import com.example.picchat.other.Constants
+import com.example.picchat.other.Constants.KEY_POSITION
 import com.example.picchat.other.Constants.KEY_USERNAME
 import com.example.picchat.other.Constants.LIKE_MESSAGE
 import com.example.picchat.other.Resource
@@ -56,16 +57,18 @@ abstract class BasePostFragment(): Fragment() {
 
         setUpRecyclerView()
 
-        postAdapter.setOnLikesClickListener {
+        postAdapter.setOnLikesClickListener { post, pos ->
+            sharedPrefs.edit().putInt(KEY_POSITION, pos).apply()
             findNavController().navigate(
                     HomeFragmentDirections.launchUserResultsFragment(
-                            it.id,
+                            post.id,
                             "Likes"
                     )
             )
         }
 
-        postAdapter.setOnCommentTvClickListener { post, _ ->
+        postAdapter.setOnCommentTvClickListener { post, pos ->
+            sharedPrefs.edit().putInt(KEY_POSITION, pos).apply()
             findNavController().navigate(
                     HomeFragmentDirections.launchCommentsFragment(post.id, uid = post.authorUid, postImgUrl = post.imgUrl)
             )
